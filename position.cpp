@@ -9,8 +9,7 @@
 //TODO:
 
 /*
- ** the fen parser only parses the moves and not the flags such as castling rights,
-    go to the void fenParser() function
+
 */
 #include "position.hpp"
 
@@ -60,7 +59,9 @@ void position::setboard(){
     //std::string fen = "8/8/1b2BB2/1Npk4/2K4r/1nP5/1B1R1Q2/6q1 w - -";
    // std::string fen = "8/8/8/4bb2/8/8/8/R3K1nR w - -";
    // std::string fen ="3Q1R2/3rpP1q/b1Qp1kP1/1P4r1/3r1n1B/rP1KP1r1/1r1P4/B2q1Q2 w - -";
-    std::string fen ="r1bqkb1r/pp2p1pp/n7/3pPp2/2pP2nN/PP6/2P1BPPP/RNBQK2R b KQkq d3 0 43";
+  //  std::string fen ="r1bqkb1r/pp2p1pp/n7/3pPp2/2pP2nN/PP6/2P1BPPP/RNBQK2R b KQkq d3 0 43";
+   // std::string fen = "4R2B/k7/8/3PpP2/3K1P2/5NB1/8/4Q3 w - e6 0 2";
+    std::string fen = "1q2K3/1QP5/2N5/8/8/8/8/8 w - -v";
     fenParser(fen);
     
     

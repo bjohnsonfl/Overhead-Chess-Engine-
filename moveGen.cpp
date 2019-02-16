@@ -78,13 +78,77 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
         step 5.1) EnPassant counts as well as promotions
     
      */
+    square sq = empty, to = empty, from = empty;
+    move mov = none;
+    player us = pos.get_sideToPlay();
+    player them = player(!us);
     
+    square kingSq = pos.get_king_sq(us);
+    square enemyKingSq = pos.get_king_sq(them);
     
+    bitboard kingSquares = openBoardAttacks[p_king][kingSq];
+    bitboard enemyKingSquares = openBoardAttacks[p_king][enemyKingSq];
     
+    //To Keep kings apart. This bitboard is all possible squares a king can move to now
+    kingSquares = kingSquares ^( kingSquares & enemyKingSquares );
+    printBitboard(kingSquares);
+    //Step 1/2)
+    bitboard checker = pos.squareAttackedBy(kingSq) & pos.get_pieces(them);
+    bitboard sliders =( pos.get_pieces(p_queen, p_bishop) | pos.get_pieces(p_rook)) & checker;
+    bitboard checkedSquares = 0;
+    while(sliders)
+    {
+        sq = lsb_sq(sliders);
+        printBitboard(lineSqBitMask[sq][kingSq]);
+        checkedSquares |= lineSqBitMask[sq][kingSq] ^ squareBitMask[sq];
+        pop_lsb(&sliders);
+        
+    }
+    printBitboard(checkedSquares);
+    kingSquares &= ~checkedSquares;
+    printBitboard(kingSquares);
+    bitboard kingCaptures = 0, kingQuiets = 0;
+    kingCaptures = kingSquares & pos.get_pieces(them);
+    printBitboard(kingCaptures);
+    kingQuiets  = kingSquares & ~(pos.get_pieces());
+    printBitboard(kingQuiets);
+    while(kingCaptures)
+    {
+        to = lsb_sq(kingCaptures);
+        mov = make_move(kingSq, to);
+        (*moveList++).mv = mov;
+        
+        pop_lsb(&kingCaptures);
+    }
     
+    while(kingQuiets)
+    {
+        to = lsb_sq(kingQuiets);
+        mov = make_move(kingSq, to);
+        (*moveList++).mv = mov;
+        
+        pop_lsb(&kingQuiets);
+    }
     
+    //Step 3)
+    //these moves will be checked for legality later
+    if( popcount(checker) > 1) return moveList;
     
+    //Step 4)
+    //Pawn (and promotion), knight, bishop, rook, queen
+    square checkerSq = lsb_sq(checker);
+    bitboard blockerSq = inBetweenSqBitMask[kingSq][checkerSq];
     
+    moveList = pawnPushMoves(pos.get_pieces(us, p_pawn), us, blockerSq, moveList);
+    moveList = knightMoves(pos.get_pieces(us, p_knight), blockerSq, moveList);
+    moveList = sliderMoves(pos, blockerSq, moveList);
+    
+    //Step 5)
+    bitboard capture = squareBitMask[checkerSq];
+    moveList = pawnAttackMoves(pos.get_pieces(us, p_pawn), us, capture, moveList);
+    if(pos.get_enPassent() != empty) moveList = generateEnPassent(pos, moveList);
+    moveList = knightMoves(pos.get_pieces(us, p_knight), capture, moveList);
+    moveList = sliderMoves(pos, capture, moveList);
     
     return moveList;
 }
@@ -141,9 +205,9 @@ candidate* generateCastling(const position& pos, candidate* moveList)
         while(!illegal && (sq > b1))
         {
             if(squareBitMask[sq] & occupied) illegal = true;
-            if((pos.squareAttackedBy(sq)) &enemy) illegal = true;
-            printBitboard(pos.squareAttackedBy(sq));
-            printBitboard(pos.squareAttackedBy(sq) & enemy);
+            if((pos.squareAttackedBy(sq)) & enemy) illegal = true;
+           // printBitboard(pos.squareAttackedBy(sq));
+           // printBitboard(pos.squareAttackedBy(sq) & enemy);
             
             sq = square( sq - 1 );
         }
@@ -320,7 +384,7 @@ candidate* kingMoves (const position& pos, bitboard target, candidate* moveList)
     square from = empty, to = empty;
     move mov  = none;
     player color = pos.get_sideToPlay();
-    king = pos.get_king(pos.get_sideToPlay());
+    king = pos.get_king(color);
     
    
     from = lsb_sq(king);
@@ -447,7 +511,7 @@ void printMoves (candidate* start, candidate* end)
         mv[3] = square_to_rank(to) + '1';
         mv[4] = ' ';
         mv[5] = pieceletters[promo_pieceType(start->mv)] ;
-        mv[6] = flagletters[move_flag(start->mv)+1];
+        mv[6] = flagletters[move_flag(start->mv)+1]; //for non promotions, shows up at N because the offset of piece promotion
         std::cout << mv[0] << mv[1] << mv[2] << mv[3] << mv[4] << mv[5] << mv[6]  << "\n";
          start++;
     }

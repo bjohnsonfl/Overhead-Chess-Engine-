@@ -67,8 +67,10 @@ public:
     bitboard get_pieces (pieceType pt, pieceType pt2) const;
     bitboard get_pieces (player color, pieceType pt) const;
     bitboard get_king (player color) const;
+    bitboard get_pinned (player color) const;
     square get_king_sq (player color) const;
     square get_enPassent () const;
+    
     
     //move related function
     void do_move(move m);
@@ -91,6 +93,10 @@ public:
     bitboard xRayRook (bitboard occupied, bitboard ownPieces, square sq) const;
     bitboard xRayBishop (bitboard occupied, bitboard ownPieces, square sq) const;
     bitboard pinningBoards (square sq, bitboard& pinners, player color);
+    
+    //moves
+    bool legal(move m) const;
+    
     
     void printAllBitboards();
     void printBoard();
@@ -127,6 +133,10 @@ inline bitboard position::get_pieces(player color, pieceType pt) const{
 
 inline bitboard position::get_king(player color) const {
     return color == white ?   pieces[w_king] : pieces[b_king];
+}
+
+inline bitboard position::get_pinned(player color) const {
+    return state -> absolutePinned[white];
 }
 
 inline square position::get_king_sq(player color) const

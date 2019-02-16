@@ -8,6 +8,40 @@
 
 #include "moveGen.hpp"
 
+
+template<>
+candidate* generate <quiet> (const position& pos, candidate* moveList)
+{
+    std::cout<<"quiet\n";
+    
+    return moveList;
+}
+
+template<> candidate* generate <capture> (const position& pos, candidate* moveList)
+{
+    std::cout<<"capture\n";
+    
+    return moveList;
+}
+
+template<> candidate* generate <evasion> (const position& pos, candidate* moveList)
+{
+    std::cout<<"evasion\n";
+    
+    return moveList;
+}
+
+candidate* generateLegal (const position& pos, candidate* moveList, moveType T)
+{
+    moveList = T == quiet   ? generate <quiet>   (pos, moveList):
+    T == capture ? generate <capture> (pos, moveList):
+    generate <evasion> (pos, moveList);
+    
+    
+    return moveList;
+}
+
+
 candidate* generateQuiet(const position& pos, candidate* moveList){
     player us = pos.get_sideToPlay();
     player them = player(!us);
@@ -392,6 +426,7 @@ candidate* kingMoves (const position& pos, bitboard target, candidate* moveList)
     enemyKing = openBoardAttacks[p_king][pos.get_king_sq(player(!color))];
     squares = squares ^( squares & enemyKing );
     squares &= target;
+    
     
     while(squares)
     {

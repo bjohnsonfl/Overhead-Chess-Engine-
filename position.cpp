@@ -61,7 +61,9 @@ void position::setboard(){
    // std::string fen ="3Q1R2/3rpP1q/b1Qp1kP1/1P4r1/3r1n1B/rP1KP1r1/1r1P4/B2q1Q2 w - -";
   //  std::string fen ="r1bqkb1r/pp2p1pp/n7/3pPp2/2pP2nN/PP6/2P1BPPP/RNBQK2R b KQkq d3 0 43";
    // std::string fen = "4R2B/k7/8/3PpP2/3K1P2/5NB1/8/4Q3 w - e6 0 2";
-    std::string fen = "1q2K3/1QP5/2N5/8/8/8/8/8 w - -v";
+    //std::string fen = "1q2K3/1QP4P/2N5/8/8/8/8/8 w - -";
+  //  std::string fen = "k7/1b6/8/3Pp1r1/4K3/8/8/8 w - e6 0 2";
+    std::string fen =  "k6b/2r5/5Q2/8/2P5/2K3Rq/8/8 w - -";
     fenParser(fen);
     
     
@@ -322,6 +324,48 @@ bitboard position:: pinningBoards(square sq, bitboard &pinners, player color)
     }
     
     return pinned;
+}
+
+bool position::legal (move m) const
+{
+    /*
+     Much inspiration from stockfish in this function
+     A move is legal if the king is not exposed or left in check.
+     In movegeneration, only castling tests for legality, all other moves must be checked.
+     If our king is in check, evasions are created, but we need to check that the king doesnt move into check.
+     All king moves, except castling, needs to make sure it doesnt move into check.
+     All other moves cannot be pinned except moving torwards or away from the king.
+     En Passent needs to be checked for exposing the 5th (4th for black) rank in check.
+     */
+    
+    player us  = get_sideToPlay();
+    player them = player(!us);
+    square from = source_sq(m);
+    square to = destination_sq(m);
+    square kingSq = get_king_sq(us);
+    bitboard kingSqBB = get_king(us);
+    bitboard piece = squareBitMask[from];
+    
+    //King moves
+    if(kingSqBB & piece)
+    {
+      return (move_flag(m) == castling) || !(squareAttackedBy(to) & get_pieces(them));
+    }
+    
+    if(move_flag(m) == enPass)
+    {
+        bitboard newOccupied = 0;
+        square theirPawn = empty;
+        theirPawn = square_to_rank(to) == rank_6 ? square( get_enPassent() + south ) :
+                                                   square( get_enPassent() + nort );
+        newOccupied = get_pieces() ^ squareBitMask[from] ^ squareBitMask[to] ^ squareBitMask[theirPawn];
+        printBitboard(newOccupied);
+        bitboard rookQueen = sliderAttacks(kingSq, newOccupied, p_rook) & get_pieces(p_rook, p_queen) & get_pieces(them);
+        bitboard bishopQueen = sliderAttacks(kingSq, newOccupied, p_bishop) & get_pieces(p_bishop, p_queen) & get_pieces(them);
+        return !rookQueen && !bishopQueen;
+    }
+    
+    return !(get_pinned(us) & squareBitMask[from]) || (lineSqBitMask[from][to] & kingSqBB);
 }
 
 void position::printAllBitboards(){

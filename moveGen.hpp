@@ -36,6 +36,10 @@ struct candMoveList {
 
 
 
+template <moveType>
+candidate* generate (const position& pos, candidate* moveList);
+
+candidate* generateLegal (const position& pos, candidate* moveList, moveType T);
 
 candidate* generateQuiet (const position& pos, candidate* moveList);
 candidate* generateCapture (const position& pos, candidate* moveList);

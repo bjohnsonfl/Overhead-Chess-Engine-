@@ -217,7 +217,7 @@ void allPawnAttacks(){
     bitboard pawnA = 0ULL, pawnH = 0ULL, pawnAttacks = 0ULL;
     square sq = a1;
     
-    for(rank rk = rank_2; rk<numOfRank-1; rk++)
+    for(rank rk = rank_1; rk<numOfRank-1; rk++)
     {
         for(file f = file_a; f<numOfFile; f++)
         {
@@ -228,13 +228,13 @@ void allPawnAttacks(){
             pawnAttacks |= (pawnA << noWe);
             pawnAttacks |= (pawnH << noEa);
             
-          //  printBitboard(pawnAttacks);
+            //printBitboard(pawnAttacks);
             openBoardPawnAttacks[0][sq] = pawnAttacks;
             pawnAttacks = 0ULL;
         }
     }
     
-    for(rank rk = rank_7; rk > rank_1; rk--)
+    for(rank rk = rank_8; rk > rank_1; rk--)
     {
         for(file f = file_a; f<numOfFile; f++)
         {
@@ -245,7 +245,7 @@ void allPawnAttacks(){
             pawnAttacks |= (pawnA >> -soWe);
             pawnAttacks |= (pawnH >> -soEa);
             
-        // printBitboard(pawnAttacks);
+            //printBitboard(pawnAttacks);
             openBoardPawnAttacks[1][sq] = pawnAttacks;
             pawnAttacks = 0ULL;
         }

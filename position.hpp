@@ -21,6 +21,7 @@ struct returnState {
     int fiftyMove;
     square enPassent;
     int castling;
+    piece captured;
     move m;
     returnState* prev;
     bitboard absolutePinned [numOfPlayers];
@@ -29,6 +30,7 @@ struct returnState {
         castling = noRights;  //Always take from the fen
         enPassent = empty;
         fiftyMove = 0;
+        captured = not_piece;
         m = none;
         prev = NULL;
         absolutePinned[white] = 0;
@@ -73,7 +75,7 @@ public:
     
     
     //move related function
-    void do_move(move m);
+    void do_move(move m, returnState& newState);
     void undo_move(move m);
     void place_piece(square sq, piece pt);
     void remove_piece(square sq, piece pt);
@@ -97,9 +99,10 @@ public:
     //moves
     bool legal(move m) const;
     
-    
-    void printAllBitboards();
-    void printBoard();
+    int get_nodes() const;
+    int numberOfPieces () const;
+    void printAllBitboards() const;
+    void printBoard() const;
     
     
 };
@@ -136,7 +139,7 @@ inline bitboard position::get_king(player color) const {
 }
 
 inline bitboard position::get_pinned(player color) const {
-    return state -> absolutePinned[white];
+    return state -> absolutePinned[color];
 }
 
 inline square position::get_king_sq(player color) const
@@ -173,5 +176,13 @@ inline bitboard position::attacksFrom (square sq, pieceType pt) const {
 
 inline bitboard position::attacksFromPawn(square sq, player color) const{
     return openBoardPawnAttacks[color][sq];
+}
+
+inline int position::get_nodes() const {
+    return nodes;
+}
+
+inline int position::numberOfPieces()const{
+    return popcount(allPieces);
 }
 #endif /* position_hpp */

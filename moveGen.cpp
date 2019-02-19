@@ -12,21 +12,21 @@
 template<>
 candidate* generate <quiet> (const position& pos, candidate* moveList)
 {
-    std::cout<<"quiet\n";
+   moveList = generateQuiet(pos, moveList);
     
     return moveList;
 }
 
 template<> candidate* generate <capture> (const position& pos, candidate* moveList)
 {
-    std::cout<<"capture\n";
+     moveList = generateCapture(pos, moveList);
     
     return moveList;
 }
 
 template<> candidate* generate <evasion> (const position& pos, candidate* moveList)
 {
-    std::cout<<"evasion\n";
+    moveList = generateEvasion(pos, moveList);
     
     return moveList;
 }
@@ -37,6 +37,28 @@ candidate* generateLegal (const position& pos, candidate* moveList, moveType T)
     T == capture ? generate <capture> (pos, moveList):
     generate <evasion> (pos, moveList);
     
+    
+    return moveList;
+}
+
+candidate* generateAllLegal (const position& pos, candidate* moveList)
+{
+   
+    if(pos.get_pieces(player(!(pos.get_sideToPlay()))) & pos.squareAttackedBy(pos.get_king_sq(pos.get_sideToPlay()))) {
+       // std::cout <<"inside evasion\n";
+       // printBitboard(pos.get_pieces(player(!(pos.get_sideToPlay())))&pos.squareAttackedBy(pos.get_king_sq(pos.get_sideToPlay())));
+       // pos.printBoard();
+        return generateEvasion(pos, moveList);
+    }
+    else{
+       //  std::cout <<"inside else\n";
+    moveList = generateQuiet(pos, moveList);
+    moveList = generateCapture(pos, moveList);
+    moveList = generatePromotions(pos, moveList);
+    if(pos.get_castlingRights(pos.get_sideToPlay()))moveList = generateCastling(pos, moveList);
+    if(pos.get_enPassent() != empty) moveList = generateEnPassent(pos, moveList);
+    }
+   
     
     return moveList;
 }
@@ -79,6 +101,7 @@ candidate* generateCapture(const position& pos, candidate* moveList)
 
 candidate* generatePromotions(const position& pos, candidate* moveList){
  
+    
     player us = pos.get_sideToPlay();
     player them = player(!us);
     bitboard quiets = ~(pos.get_pieces());
@@ -125,7 +148,7 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     
     //To Keep kings apart. This bitboard is all possible squares a king can move to now
     kingSquares = kingSquares ^( kingSquares & enemyKingSquares );
-    printBitboard(kingSquares);
+    //printBitboard(kingSquares);
     //Step 1/2)
     bitboard checker = pos.squareAttackedBy(kingSq) & pos.get_pieces(them);
     bitboard sliders =( pos.get_pieces(p_queen, p_bishop) | pos.get_pieces(p_rook)) & checker;
@@ -133,19 +156,19 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     while(sliders)
     {
         sq = lsb_sq(sliders);
-        printBitboard(lineSqBitMask[sq][kingSq]);
+       // printBitboard(lineSqBitMask[sq][kingSq]);
         checkedSquares |= lineSqBitMask[sq][kingSq] ^ squareBitMask[sq];
         pop_lsb(&sliders);
         
     }
-    printBitboard(checkedSquares);
+   // printBitboard(checkedSquares);
     kingSquares &= ~checkedSquares;
-    printBitboard(kingSquares);
+   // printBitboard(kingSquares);
     bitboard kingCaptures = 0, kingQuiets = 0;
     kingCaptures = kingSquares & pos.get_pieces(them);
-    printBitboard(kingCaptures);
+    //printBitboard(kingCaptures);
     kingQuiets  = kingSquares & ~(pos.get_pieces());
-    printBitboard(kingQuiets);
+   // printBitboard(kingQuiets);
     while(kingCaptures)
     {
         to = lsb_sq(kingCaptures);
@@ -180,7 +203,10 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     //Step 5)
     bitboard capture = squareBitMask[checkerSq];
     moveList = pawnAttackMoves(pos.get_pieces(us, p_pawn), us, capture, moveList);
-    if(pos.get_enPassent() != empty) moveList = generateEnPassent(pos, moveList);
+    if(pos.get_enPassent() != empty)
+    {
+        moveList = generateEnPassent(pos, moveList);
+    }
     moveList = knightMoves(pos.get_pieces(us, p_knight), capture, moveList);
     moveList = sliderMoves(pos, capture, moveList);
     
@@ -212,10 +238,14 @@ candidate* generateCastling(const position& pos, candidate* moveList)
     
     illegal = ((pos.squareAttackedBy(kSq)) & enemy) == true ? true :false;
     
+    square a_1 = us == white ? a1 : a8;
+    square b_1 = us == white ? b1 : b8;
+    square h_1 = us == white ? h1 : h8;
+    
     if((castlightRights & 0x1) && !illegal) // KING SIDE CASTLE
     {
         sq = square(kSq + 1);
-        while(!illegal && (sq < h1))
+        while(!illegal && (sq < h_1))
         {
             if(squareBitMask[sq] & occupied) illegal = true;
             if((pos.squareAttackedBy(sq)) & enemy) illegal = true;
@@ -226,7 +256,7 @@ candidate* generateCastling(const position& pos, candidate* moveList)
         if(!illegal)
         {
             //make move
-            (*moveList++).mv = make_move(kSq, h1, pieceType(0) , castling);
+            (*moveList++).mv = make_move(kSq, h_1, pieceType(0) , castling);
             
         }
         
@@ -236,7 +266,7 @@ candidate* generateCastling(const position& pos, candidate* moveList)
     if ((castlightRights & 0x2) && !illegal) // QUEEN SIDE CASTLE
     {
         sq = square(kSq - 1);
-        while(!illegal && (sq > b1))
+        while(!illegal && (sq > b_1))
         {
             if(squareBitMask[sq] & occupied) illegal = true;
             if((pos.squareAttackedBy(sq)) & enemy) illegal = true;
@@ -249,7 +279,7 @@ candidate* generateCastling(const position& pos, candidate* moveList)
         if(!illegal)
         {
             //make move
-            (*moveList++).mv = make_move(kSq, a1, pieceType(0) , castling);
+            (*moveList++).mv = make_move(kSq, a_1, pieceType(0) , castling);
            
         }
     }
@@ -261,10 +291,11 @@ candidate* generateCastling(const position& pos, candidate* moveList)
 //ONLY CALL IF ENPASSENT SQUARE EXISTS
 candidate* generateEnPassent (const position& pos, candidate* moveList)
 {
+   
     player us = pos.get_sideToPlay();
-   // player them = player(!us);
-   // bitboard occupied  = pos.get_pieces();
-//bitboard enemy = pos.get_pieces(them);
+    // player them = player(!us);
+    // bitboard occupied  = pos.get_pieces();
+    //bitboard enemy = pos.get_pieces(them);
     square enPsq = pos.get_enPassent();
     
     square capturedPawn, leftPawn, rightPawn;
@@ -345,9 +376,9 @@ candidate* pawnPushMoves (bitboard pawns, player color, bitboard target, candida
     bitboard doublePush = color == white ? (singlePush & rankBitMask[rank_3]) << nort
                                          : (singlePush & rankBitMask[rank_6]) >> -south;
     doublePush &= target;
-    printBitboard(pawns);
-    printBitboard(singlePush);
-    printBitboard(doublePush);
+   // printBitboard(pawns);
+   // printBitboard(singlePush);
+  //  printBitboard(doublePush);
     
     while(singlePush)
     {
@@ -462,6 +493,7 @@ candidate* sliderMoves (const position& pos, bitboard target, candidate* moveLis
         from = lsb_sq(rooks);
         //check now if the from square is absolute pinned
         rookSquares = target & sliderAttacks(from, occupency, p_rook);
+        //printBitboard(rookSquares);
         while(rookSquares)
         {
              //could check here if the to square places their king in check
@@ -495,7 +527,7 @@ candidate* sliderMoves (const position& pos, bitboard target, candidate* moveLis
         from = lsb_sq(queens);
         //check now if the from square is absolute pinned
         queenSquares = target & (sliderAttacks(from, occupency, p_rook) | sliderAttacks(from, occupency, p_bishop));
-        printBitboard(queenSquares);
+        //printBitboard(queenSquares);
         while(queenSquares)
         {
             //could check here if the to square places their king in check
@@ -516,7 +548,7 @@ candidate* sliderMoves (const position& pos, bitboard target, candidate* moveLis
 
 void printmove (move m)
 {
-    square from ,to;
+   /* square from ,to;
     char mv [4];
     
         from = source_sq(m);
@@ -527,6 +559,22 @@ void printmove (move m)
         mv[3] = square_to_rank(to) + '1';
         std::cout << mv[0] << mv[1] << mv[2] << mv[3] << "\n";
     
+    */
+    std::string pieceletters = "_NBRQ";
+    std::string flagletters = "_recp";
+    square from ,to;
+    char mv [7];
+    
+    from = source_sq(m);
+    to = destination_sq(m);
+    mv[0] = square_to_file(from) + 'A';
+    mv[1] = square_to_rank(from) + '1';
+    mv[2] = square_to_file(to) + 'A';
+    mv[3] = square_to_rank(to) + '1';
+    mv[4] = ' ';
+    mv[5] = pieceletters[promo_pieceType(m)] ;
+    mv[6] = flagletters[move_flag(m)+1]; //for non promotions, shows up at N because the offset of piece promotion
+    std::cout << mv[0] << mv[1] << mv[2] << mv[3] << mv[4] << mv[5] << mv[6]  << "\n";
 }
 
 void printMoves (candidate* start, candidate* end)

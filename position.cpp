@@ -49,7 +49,12 @@ void position::setboard(){
    
     
     
-   // std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    //std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    std::string fen= "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
+   // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+    //test
+    //std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N5/PPPBBPpP/R4K1R w - -";
+    
   //  std::string fen = "2p5/2P5/3pq3/1bR2p1p/4N1B1/2b5/2P2p2/8 W - -";
    // std::string fen ="2p5/2P5/3pq3/1bR2p2/4N1B1/2bQ3p/2P2p2/3p4 w - -";
   //std::string fen = "8/8/5P2/1PPpk3/2KP1N2/1bb5/8/8 w - -";
@@ -59,11 +64,12 @@ void position::setboard(){
     //std::string fen = "8/8/1b2BB2/1Npk4/2K4r/1nP5/1B1R1Q2/6q1 w - -";
    // std::string fen = "8/8/8/4bb2/8/8/8/R3K1nR w - -";
    // std::string fen ="3Q1R2/3rpP1q/b1Qp1kP1/1P4r1/3r1n1B/rP1KP1r1/1r1P4/B2q1Q2 w - -";
-  //  std::string fen ="r1bqkb1r/pp2p1pp/n7/3pPp2/2pP2nN/PP6/2P1BPPP/RNBQK2R b KQkq d3 0 43";
+    //std::string fen ="r1bqkb1r/pp2p1pp/n7/3pPp2/2pP2nN/PP6/2P1BPPP/RNBQK2R b KQkq d3 0 43";
    // std::string fen = "4R2B/k7/8/3PpP2/3K1P2/5NB1/8/4Q3 w - e6 0 2";
     //std::string fen = "1q2K3/1QP4P/2N5/8/8/8/8/8 w - -";
   //  std::string fen = "k7/1b6/8/3Pp1r1/4K3/8/8/8 w - e6 0 2";
-    std::string fen =  "k6b/2r5/5Q2/8/2P5/2K3Rq/8/8 w - -";
+   // std::string fen =  "k6b/2r5/5Q2/8/2P5/2K3Rq/8/8 w - -";
+  //  std::string fen = "k7/8/8/3PpP2/8/8/1K6/8 w - e6 0 2";
     fenParser(fen);
     
     
@@ -223,6 +229,262 @@ void position::fenParser(std::string &fen){
     
 }
 
+void position::do_move(move m, returnState& newState)
+{
+   //castling
+    //capturing
+    //promoting
+    //enpassent
+    //update pieces
+
+    newState.fiftyMove = state -> fiftyMove;
+    newState.enPassent = state -> enPassent;
+    newState.castling = state -> castling;
+    newState.captured = state -> captured;
+    newState.m = state -> m;
+    //absolute pinned and pinners will be calculated later
+    newState.prev = state;
+    state = &newState;
+    
+    player us = get_sideToPlay();
+    player them = player (!us);
+    square from = source_sq(m);
+    square to = destination_sq(m);
+    moveFlag flag = move_flag(m);
+    piece movingPiece = board[from];
+    
+    bool capture = false;
+    piece captured =  not_piece;
+    if((get_pieces(them) & squareBitMask[to]) && (flag != castling)){
+        capture = true;
+        captured = board[to];
+        if(captured == b_king)
+        {
+           // std::cout<<"captured king\n";
+            //printBoard();
+        }
+    }
+    else{
+        state -> captured = not_piece;
+    }
+    
+    
+    if(flag == castling)
+    {
+        square a_1 = us == white ? a1 : a8;
+        square h_1 = us == white ? h1 : h8;
+        piece king = us == white ? w_king : b_king;
+        piece rook = us == white ? w_rook : b_rook;
+        if(to == a_1)
+        {
+            square newKingSq =  us == white ? c1 : c8;
+            square newRookSq =  us == white ? d1 : d8;
+            remove_piece(from, king);
+           // printBitboard(pieces[king]);
+            remove_piece(to, rook);
+            place_piece(newKingSq, king);
+          //  printBitboard(pieces[king]);
+            place_piece(newRookSq, rook);
+            
+            
+        }
+        else
+        {
+            square newKingSq =  us == white ? g1 : g8;
+            square newRookSq =  us == white ? f1 : f8;
+            remove_piece(from, king);
+            //printBitboard(pieces[king]);
+            remove_piece(to, rook);
+            place_piece(newKingSq, king);
+            //printBitboard(pieces[king]);
+            place_piece(newRookSq, rook);
+        }
+        
+        if(us == white) {
+            state -> castling &= (~ W_OO);
+            state -> castling &= (~ W_OOO);
+        }
+        else {
+            state -> castling &= (~ B_OO);
+            state -> castling &= (~ B_OOO);
+        }
+        state->captured = not_piece;
+    }
+    
+    
+    if(capture && (flag != castling))
+    {
+        state -> captured = captured;
+        remove_piece (to, captured);
+        remove_piece (from, movingPiece);
+        place_piece(to, movingPiece);
+        state->fiftyMove = 0;
+    }
+    
+    if(flag == enPass)
+    {
+        state -> captured = captured;
+        square enPsq = state -> enPassent;
+        square capturedPawn = us == white ? square(enPsq + south) : square(enPsq + nort);
+        remove_piece(from, movingPiece);
+        remove_piece(capturedPawn, board[capturedPawn]);
+        place_piece(enPsq, movingPiece);
+        state->fiftyMove = 0;
+    }
+    
+    if( flag == regular && !capture)
+    {
+        remove_piece(from, movingPiece);
+        place_piece(to, movingPiece);
+        
+    }
+    
+   //Reset enPassent flag
+    state -> enPassent = empty;
+    
+    if(movingPiece == w_pawn || movingPiece == b_pawn)
+    {
+        if(flag == promoting)
+        {
+            remove_piece(to, movingPiece);
+            piece promo = piece(promo_pieceType(m));
+            if(us == black) promo = piece(promo + 6);
+            place_piece(to, promo);
+        }
+        if((us == white) && ((to - from) == 16)){
+            bitboard attacks = attacksFromPawn(square(to + south ), us) & get_pieces(them, p_pawn);
+            if(attacks) state -> enPassent = square(to + south );
+        }
+        if((us == black) && ((from - to) == 16))
+        {
+            bitboard attacks = attacksFromPawn(square(to + nort ), us) & get_pieces(them, p_pawn);
+            if(attacks) state -> enPassent = square(to + nort );
+        }
+        state->fiftyMove = 0;
+    }
+    
+    
+    if(state->castling)
+    {
+        //KING MOVES
+        if(movingPiece == w_king) state->castling = state->castling & (~ W_OO) & ( ~ W_OOO);
+        else if (movingPiece == b_king) state->castling = state->castling & (~ B_OO) & ( ~ B_OOO);
+        //ROOK MOVES
+        else if(movingPiece == w_rook && (from == a1)) state -> castling = state -> castling & ( ~ W_OOO);
+        else if(movingPiece == w_rook && (from == h1)) state -> castling = state -> castling & ( ~ W_OO);
+        else if(movingPiece == b_rook && (from == a8)) state -> castling = state -> castling & ( ~ B_OOO);
+        else if(movingPiece == b_rook && (from == h8)) state -> castling = state -> castling & ( ~ B_OO);
+        //ROOK CAPTURED
+        else if(captured == w_rook && (to == a1)) state -> castling = state -> castling & ( ~ W_OOO);
+        else if(captured == w_rook && (to == h1)) state -> castling = state -> castling & ( ~ W_OO);
+        else if(captured == b_rook && (to == a8)) state -> castling = state -> castling & ( ~ B_OOO);
+        else if(captured == b_rook && (to == h8)) state -> castling = state -> castling & ( ~ B_OO);
+        
+    }
+    
+    ++ply;
+    ++nodes;
+    sideToPlay = them;
+    state->m = m;
+    update_check_boards(state);
+    
+}
+
+void position::undo_move (move m)
+{
+    sideToPlay = player(!sideToPlay);
+    player us = sideToPlay;
+    player them = player(!us);
+    square from = source_sq(m);
+    square to = destination_sq(m);
+    moveFlag flag = move_flag(m);
+    --ply;
+    //castling
+    //capturing
+    //promoting
+    //enpassent
+    //update pieces
+    
+    if(flag == castling)
+    {
+        square a_1 = us == white ? a1 : a8;
+        square h_1 = us == white ? h1 : h8;
+        piece king = us == white ? w_king : b_king;
+        piece rook = us == white ? w_rook : b_rook;
+        if(to == a_1)
+        {
+            square newKingSq =  us == white ? c1 : c8;
+            square newRookSq =  us == white ? d1 : d8;
+            remove_piece(newKingSq, king);
+            remove_piece(newRookSq, rook);
+            place_piece(from, king);
+            place_piece(to, rook);
+            
+            
+            
+        }
+        else
+        {
+            square newKingSq =  us == white ? g1 : g8;
+            square newRookSq =  us == white ? f1 : f8;
+            remove_piece(newKingSq, king);
+            remove_piece(newRookSq, rook);
+            place_piece(from, king);
+            place_piece(to, rook);
+            
+        }
+    }
+    
+    //not all promotions are captures and not all captures are promotions
+    
+    //captures
+    if((state->captured != not_piece) && !(flag == castling))
+    {
+        if(flag == promoting)
+        {
+            remove_piece(to, board[to]);
+            place_piece(to, state -> captured);
+            piece pawn = us == white ?  w_pawn : b_pawn;
+            place_piece(from, pawn);
+            
+        }
+        else
+        {
+            place_piece(from, board[to]);
+            remove_piece(to, board[to]);
+            place_piece(to, state -> captured);
+        
+        }
+    }
+    if(flag == enPass)
+    {
+      
+        square enPsq = to;
+        square capturedPawn = us == white ? square(enPsq + south) : square(enPsq + nort);
+        piece pawn = us == white ?  w_pawn : b_pawn;
+        piece theirPawn = us == white ?  b_pawn : w_pawn;
+        remove_piece(enPsq, pawn);
+        place_piece(from, pawn);
+        place_piece(capturedPawn, theirPawn);
+        
+         
+    }
+    
+    if((flag == regular) && (state->captured == not_piece))
+    {
+        place_piece(from, board[to]);
+        remove_piece(to, board[to]);
+    }
+    
+    if( (flag == promoting) && (state->captured == not_piece)){
+        remove_piece(to, board[to]);
+        piece pawn = us == white ?  w_pawn : b_pawn;
+        place_piece(from, pawn);
+        
+    }
+    state = state -> prev;
+}
+
 void position::place_piece(square sq, piece pt)
 {
     //do not erase data by placing empty pieces. that is reserved for remove_piece
@@ -261,11 +523,17 @@ void position::update_check_boards(returnState *state)
     
 }
 
-
+//IMPORTANT!!!!! READ BELOW IF YOU WANT TO USE THIS FUNCTION
 //Have to bitwise and with opposing pieces to find enemy attackers of the square
 bitboard position::squareAttackedBy (square sq) const
 {
     
+  //  printBitboard((attacksFromPawn(sq, black)      & get_pieces(white, p_pawn)));
+   // printBitboard((attacksFromPawn(sq, white)    & get_pieces(black, p_pawn)));
+    // printBitboard((attacksFrom (sq, p_knight)         & get_pieces(p_knight)));
+  //   printBitboard((attacksFrom (sq, p_king)           & get_pieces(p_king)));
+ //    printBitboard((attacksFrom (sq, p_rook) & get_pieces(  p_rook, p_queen)));
+  //   printBitboard((attacksFrom (sq, p_bishop) & get_pieces(p_bishop, p_queen)));
     bitboard attacks =    (attacksFromPawn(sq, black)      & get_pieces(white, p_pawn))
                         | (attacksFromPawn(sq, white)    & get_pieces(black, p_pawn))
                         | (attacksFrom (sq, p_knight)         & get_pieces(p_knight))
@@ -359,7 +627,7 @@ bool position::legal (move m) const
         theirPawn = square_to_rank(to) == rank_6 ? square( get_enPassent() + south ) :
                                                    square( get_enPassent() + nort );
         newOccupied = get_pieces() ^ squareBitMask[from] ^ squareBitMask[to] ^ squareBitMask[theirPawn];
-        printBitboard(newOccupied);
+        //printBitboard(newOccupied);
         bitboard rookQueen = sliderAttacks(kingSq, newOccupied, p_rook) & get_pieces(p_rook, p_queen) & get_pieces(them);
         bitboard bishopQueen = sliderAttacks(kingSq, newOccupied, p_bishop) & get_pieces(p_bishop, p_queen) & get_pieces(them);
         return !rookQueen && !bishopQueen;
@@ -368,7 +636,7 @@ bool position::legal (move m) const
     return !(get_pinned(us) & squareBitMask[from]) || (lineSqBitMask[from][to] & kingSqBB);
 }
 
-void position::printAllBitboards(){
+void position::printAllBitboards() const{
     
    
     for(piece p = w_pawn; p<numOfPieces; p++)
@@ -391,7 +659,7 @@ void position::printAllBitboards(){
     std::cout <<  "\n\n\n";
 }
 
-void position::printBoard(){
+void position::printBoard() const{
     std::cout <<"Current Board: \n";
     std::cout << "---------------\n";
     for(rank r = rank_8; r>=0; r--)

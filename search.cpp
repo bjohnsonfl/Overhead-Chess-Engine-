@@ -24,7 +24,8 @@ bitboard perft (int depth, position& pos)
        // pos.printBoard();
     }
    
-   moves.end = generateAllLegal(pos, moves.end);
+  /// moves.end = generateCapture(pos, moves.end);
+    moves.end = generateAllLegal(pos, moves.end);
     while(moves.start != moves.end)
     {
         if(pos.legal(moves.start -> mv)){
@@ -49,12 +50,32 @@ bitboard perft (int depth, position& pos)
                 //printmove(moves.start -> mv);
                 //pos.printBoard();
             }
-          
+            bitboard newBoards [12] ;
+            for(int i=0; i<12; i++) newBoards[i] = pos.get_pieces(piece(i));
+           
+            int whiteCount = popcount(pos.get_pieces(white));
+            int blackCount =  popcount(pos.get_pieces(black));
+            
+            
+            //pos.printBoard();
             pos.do_move(moves.start -> mv, state);
             if(pos.get_pieces(pos.get_sideToPlay()) & pos.squareAttackedBy(pos.get_king_sq(player(!pos.get_sideToPlay()))))
             {
                 printmove(moves.start -> mv);
                 pos.printBoard();
+            }
+            
+            
+            if((popcount(pos.get_pieces(white)) < whiteCount) && pos.get_sideToPlay() != white)
+            {
+                pos.printBoard();
+                printmove(moves.start -> mv);
+            }
+            
+            if((popcount(pos.get_pieces(black)) < blackCount) && pos.get_sideToPlay() != black)
+            {
+                pos.printBoard();
+                printmove(moves.start -> mv);
             }
            // printmove(moves.start -> mv);
            // pos.printBoard();
@@ -65,7 +86,21 @@ bitboard perft (int depth, position& pos)
             }
             nodes += perft(depth -1, pos);
             pos.undo_move(moves.start -> mv);
-           
+            
+            if(popcount(pos.get_pieces(white)) != whiteCount || popcount(pos.get_pieces(black)) != blackCount)
+            {
+                pos.printBoard();
+            }
+            
+            
+          //  pos.printBoard();
+            for(int i=0; i<12; i++) {
+              if(  newBoards[i] != pos.get_pieces(piece(i)))
+              {
+                  pos.printBoard();
+              }
+            }
+            
            // pos.printBoard();
             if( popcount(pos.get_pieces(p_king)) < 2)
             {
@@ -93,4 +128,36 @@ bitboard perft (int depth, position& pos)
     }
     return nodes;
     
+}
+
+
+bitboard perftDivide (int depth, position& pos)
+{
+    
+    candMoveList movs;
+    
+    movs.end = generateAllLegal(pos, movs.end);
+    returnState state = returnState();
+    bitboard nodes = 0;
+    bitboard totalNodes =0;
+    while( movs.start != movs.end)
+    {
+        if(pos.legal(movs.start -> mv))
+        {
+            pos.do_move(movs.start -> mv, state);
+            nodes = perft(depth -1, pos);
+            totalNodes += nodes;
+            printmove(movs.start->mv);
+            std::cout << "nodes: " << nodes << "\n\n";
+            pos.undo_move(movs.start -> mv);
+        }
+        
+        movs.start ++;
+        
+    }
+    
+    
+    
+    
+    return totalNodes;
 }

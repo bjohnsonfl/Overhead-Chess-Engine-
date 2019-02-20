@@ -12,11 +12,12 @@
 
 */
 #include "position.hpp"
-
+int count;
 position::position()
 {
     state = new returnState ();
     reset();
+    count =0;
 }
 
 void position::reset(){
@@ -49,8 +50,22 @@ void position::setboard(){
    
     
    
-   // std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-     std::string fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
+  //  std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+//std::string fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
+   
+    
+   // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+//std::string fen ="r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/5Q1p/PPPBBPPP/RN2K2R b KQkq -";
+    
+  // std::string fen = "r2k3r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/5Q1p/PPPBBPPP/RN2K2R w KQ -";
+    
+    
+    
+    std::string fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
+    
+    
+    
+    
   //  std::string fen= "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
    // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
     //test
@@ -272,6 +287,7 @@ void position::do_move(move m, returnState& newState)
     
     if(flag == castling)
     {
+       
         square a_1 = us == white ? a1 : a8;
         square h_1 = us == white ? h1 : h8;
         piece king = us == white ? w_king : b_king;
@@ -317,12 +333,46 @@ void position::do_move(move m, returnState& newState)
     {
         //debug
        // printBoard();
+        ++count;
+       // std::cout <<count <<"\n";
+        bitboard pieceColor = 0;
+       
+        if (us == white)
+        {
+            pieceColor = allWhitePieces;
+        
+        }
+        else {
+             pieceColor = allBlackPieces;
+        }
+        
+        if(m == move(196) || m == move(2281))
+        {
+           // printBoard();
+            //printBitboard(pieceColor);
+        }
         ///////////////
         state -> captured = captured;
         remove_piece (to, captured);
         remove_piece (from, movingPiece);
         place_piece(to, movingPiece);
         state->fiftyMove = 0;
+        
+        bitboard pieceColor2 = 0;
+        if (us == white)
+        {
+            pieceColor2= allWhitePieces;
+            
+        }
+        else {
+            pieceColor2 = allBlackPieces;
+        }
+        if(popcount(pieceColor2) < popcount(pieceColor2))
+        {
+            printBoard();
+            printBitboard(pieceColor2);
+            std::cout << "fail\n";
+        }
        
     }
     
@@ -351,7 +401,7 @@ void position::do_move(move m, returnState& newState)
     {
         if(flag == promoting)
         {
-            remove_piece(to, movingPiece); 
+            remove_piece(to, movingPiece);
             piece promo = piece(promo_pieceType(m));
             if(us == black) promo = piece(promo + 6);
             place_piece(to, promo);

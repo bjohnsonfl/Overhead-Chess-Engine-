@@ -17,5 +17,7 @@
 
 bitboard perft (int depth,  position& pos);
 
+bitboard perftDivide (int depth , position &pos);
+
 
 #endif /* search_hpp */

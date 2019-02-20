@@ -54,7 +54,7 @@ candidate* makePromotionMoves (square from, square to, candidate* moveList);
 
 //bitboard target can dictate which whether a move will be a capture or not
 candidate* knightMoves (bitboard knights, bitboard target, candidate* moveList);
-candidate* pawnPushMoves (bitboard pawns, player color, bitboard target, candidate* moveList);
+candidate* pawnPushMoves (const position& pos, bitboard pawns, player color, bitboard target, candidate* moveList);
 candidate* pawnAttackMoves (bitboard pawns, player color, bitboard target, candidate* moveList);
 
 //for king moves,  get the masks for the kings and xor them so that they cant be a square apart

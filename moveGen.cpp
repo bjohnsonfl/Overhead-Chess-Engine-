@@ -74,7 +74,7 @@ candidate* generateQuiet(const position& pos, candidate* moveList){
     moveList = kingMoves(pos, quiets, moveList);
     moveList = knightMoves(pos.get_pieces(us, p_knight), quiets, moveList);
     moveList = sliderMoves(pos, quiets, moveList);
-    moveList = pawnPushMoves(pos.get_pieces(us, p_pawn), us, quiets & clear7Rank, moveList);
+    moveList = pawnPushMoves(pos, pos.get_pieces(us, p_pawn), us, quiets & clear7Rank, moveList);
     
     return moveList;
 }
@@ -110,7 +110,7 @@ candidate* generatePromotions(const position& pos, candidate* moveList){
     bitboard rank7Sq = us == white ? rankBitMask[rank_7] : rankBitMask[rank_2];
     bitboard rank8Sq = us == white ? rankBitMask[rank_8] : rankBitMask[rank_1];
     
-    moveList = pawnPushMoves(pos.get_pieces(us, p_pawn) & rank7Sq, us, quiets & rank8Sq, moveList);
+    moveList = pawnPushMoves(pos, pos.get_pieces(us, p_pawn) & rank7Sq, us, quiets & rank8Sq, moveList);
     
     moveList = pawnAttackMoves(pos.get_pieces(us, p_pawn) & rank7Sq, us, captures & rank8Sq, moveList);
     
@@ -136,6 +136,8 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
         step 5.1) EnPassant counts as well as promotions
     
      */
+    candidate *start = moveList;
+  //  pos.printBoard();
     square sq = empty, to = empty, from = empty;
     move mov = none;
     player us = pos.get_sideToPlay();
@@ -154,6 +156,8 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     bitboard checker = pos.squareAttackedBy(kingSq) & pos.get_pieces(them);
     bitboard sliders =( pos.get_pieces(p_queen, p_bishop) | pos.get_pieces(p_rook)) & checker;
     bitboard checkedSquares = 0;
+   // printBitboard(checker);
+    //printBitboard(sliders);
     while(sliders)
     {
         sq = lsb_sq(sliders);
@@ -164,10 +168,10 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     }
    // printBitboard(checkedSquares);
     kingSquares &= ~checkedSquares;
-   // printBitboard(kingSquares);
+    //printBitboard(kingSquares);
     bitboard kingCaptures = 0, kingQuiets = 0;
     kingCaptures = kingSquares & pos.get_pieces(them);
-    //printBitboard(kingCaptures);
+   // printBitboard(kingCaptures);
     kingQuiets  = kingSquares & ~(pos.get_pieces());
    // printBitboard(kingQuiets);
     while(kingCaptures)
@@ -196,8 +200,8 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     //Pawn (and promotion), knight, bishop, rook, queen
     square checkerSq = lsb_sq(checker);
     bitboard blockerSq = inBetweenSqBitMask[kingSq][checkerSq];
-    
-    moveList = pawnPushMoves(pos.get_pieces(us, p_pawn), us, blockerSq, moveList);
+    //printBitboard(blockerSq);
+    moveList = pawnPushMoves(pos, pos.get_pieces(us, p_pawn), us, blockerSq, moveList);
     moveList = knightMoves(pos.get_pieces(us, p_knight), blockerSq, moveList);
     moveList = sliderMoves(pos, blockerSq, moveList);
     
@@ -210,6 +214,8 @@ candidate* generateEvasion (const position& pos, candidate* moveList)
     }
     moveList = knightMoves(pos.get_pieces(us, p_knight), capture, moveList);
     moveList = sliderMoves(pos, capture, moveList);
+    
+  //  printMoves(start, moveList);
     
     return moveList;
 }
@@ -267,10 +273,11 @@ candidate* generateCastling(const position& pos, candidate* moveList)
     if ((castlightRights & 0x2) && !illegal) // QUEEN SIDE CASTLE
     {
         sq = square(kSq - 1);
-        while(!illegal && (sq > b_1))
+        //BUGGGGGGGGGG b1 is never cheked
+        while(!illegal && (sq > a_1))
         {
             if(squareBitMask[sq] & occupied) illegal = true;
-            if((pos.squareAttackedBy(sq)) & enemy) illegal = true;
+            if(((pos.squareAttackedBy(sq)) & enemy) && sq != b_1) illegal = true;
            // printBitboard(pos.squareAttackedBy(sq));
            // printBitboard(pos.squareAttackedBy(sq) & enemy);
             
@@ -301,8 +308,16 @@ candidate* generateEnPassent (const position& pos, candidate* moveList)
     
     square capturedPawn, leftPawn, rightPawn;
     capturedPawn = us == white ? square(enPsq + south) : square(enPsq + nort);
-    leftPawn = square(capturedPawn + west);
-    rightPawn = square (capturedPawn + east);
+    
+    //TO avoid wrapping off the board to the next rank,
+    //A file and H file squares must be avoided for left and right accordingly
+    //Set them to a1 as it is impossible for a pawn to be in the 1st rank, the if later will be false
+    //however if a bug causes a pawn to be on a1 by a faulty promotion, not good.
+    //Think of a more robust fix later.
+    //just hope promotions never fail!
+    
+    leftPawn = square_to_file(capturedPawn) != file_a ? square(capturedPawn + west) : a1;
+    rightPawn = square_to_file(capturedPawn) != file_h ? square (capturedPawn + east) : a1;
     
     bitboard leftPawnBB, rightPawnBB, pawns; // postEP, capturePawnBB,
     leftPawnBB = squareBitMask[leftPawn];
@@ -365,17 +380,30 @@ candidate* knightMoves (bitboard knights,bitboard target, candidate* moveList)
 
 
 //Target MUST be open squares ONLY. Clear 1st/8th rank to avoid promotions per color
-candidate* pawnPushMoves (bitboard pawns, player color, bitboard target, candidate* moveList){
+candidate* pawnPushMoves (const position& pos, bitboard pawns, player color, bitboard target, candidate* moveList){
     
     direction shift = color == white ? nort : south;
     bitboard rank8Sq = color == white ? rankBitMask[rank_8] : rankBitMask[rank_1];
     
+    
     square from = empty, to = empty;
     move mov = none;
     
-    bitboard singlePush = color == white ? (pawns << nort) & target : (pawns >> -south) & target;
-    bitboard doublePush = color == white ? (singlePush & rankBitMask[rank_3]) << nort
-                                         : (singlePush & rankBitMask[rank_6]) >> -south;
+    bitboard unoccupied = ~(pos.get_pieces());
+    
+    //BUG!!! Here if a single push target doesnt exist, then a double push is impossible
+    //BUT if a double push target exists, it will never occur because the single never happened
+   // bitboard singlePush = color == white ? (pawns << nort) & target : (pawns >> -south) & target;
+    //bitboard doublePush = color == white ? (singlePush & rankBitMask[rank_3]) << nort
+   //                                      : (singlePush & rankBitMask[rank_6]) >> -south;
+    
+    
+    //PROBLEM AGAIN. this allows for double pawn push over an occupied square. fix it
+     bitboard singlePush = color == white ? (pawns << nort)  : (pawns >> -south);
+    singlePush &= unoccupied;
+     bitboard doublePush = color == white ? (singlePush & rankBitMask[rank_3]) << nort
+                                        : (singlePush & rankBitMask[rank_6]) >> -south;
+    singlePush &= target;
     doublePush &= target;
    // printBitboard(pawns);
    // printBitboard(singlePush);

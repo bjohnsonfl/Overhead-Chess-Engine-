@@ -30,7 +30,7 @@ int main(int argc, const char * argv[]) {
     clock_t t;
     std::cout <<"Starting Perft... \n\n";
     t = clock();
-    nodes= perft(6, *pos);
+    nodes= perft(4, *pos);
     t = clock() - t;
     
     std::cout << "nodes = " << nodes << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;

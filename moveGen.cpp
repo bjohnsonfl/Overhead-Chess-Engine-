@@ -45,9 +45,10 @@ candidate* generateAllLegal (const position& pos, candidate* moveList)
 {
    
     if(pos.get_pieces(player(!(pos.get_sideToPlay()))) & pos.squareAttackedBy(pos.get_king_sq(pos.get_sideToPlay()))) {
-       // std::cout <<"inside evasion\n";
+       //std::cout <<"inside evasion\n";
        // printBitboard(pos.get_pieces(player(!(pos.get_sideToPlay())))&pos.squareAttackedBy(pos.get_king_sq(pos.get_sideToPlay())));
        // pos.printBoard();
+        
         return generateEvasion(pos, moveList);
     }
     else{

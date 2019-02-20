@@ -48,9 +48,10 @@ void position::setboard(){
     
    
     
-    
-    //std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    std::string fen= "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
+   
+   // std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+     std::string fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
+  //  std::string fen= "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -";
    // std::string fen =  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
     //test
     //std::string fen = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N5/PPPBBPpP/R4K1R w - -";
@@ -314,11 +315,15 @@ void position::do_move(move m, returnState& newState)
     
     if(capture && (flag != castling))
     {
+        //debug
+       // printBoard();
+        ///////////////
         state -> captured = captured;
         remove_piece (to, captured);
         remove_piece (from, movingPiece);
         place_piece(to, movingPiece);
         state->fiftyMove = 0;
+       
     }
     
     if(flag == enPass)
@@ -332,7 +337,7 @@ void position::do_move(move m, returnState& newState)
         state->fiftyMove = 0;
     }
     
-    if( flag == regular && !capture)
+    if(( flag == regular  || flag == promoting )&& !capture)
     {
         remove_piece(from, movingPiece);
         place_piece(to, movingPiece);
@@ -346,7 +351,7 @@ void position::do_move(move m, returnState& newState)
     {
         if(flag == promoting)
         {
-            remove_piece(to, movingPiece);
+            remove_piece(to, movingPiece); 
             piece promo = piece(promo_pieceType(m));
             if(us == black) promo = piece(promo + 6);
             place_piece(to, promo);

@@ -10,27 +10,7 @@
 
 bitboard perft (int depth, position& pos)
 {
-    /*
-    typedef unsigned long long u64;
     
-    u64 Perft(int depth)
-    {
-        MOVE move_list[256];
-        int n_moves, i;
-        u64 nodes = 0;
-        
-        if (depth == 0) return 1;
-        
-        n_moves = GenerateLegalMoves(move_list);
-        for (i = 0; i < n_moves; i++) {
-            MakeMove(move_list[i]);
-            nodes += Perft(depth - 1);
-            UndoMove(move_list[i]);
-        }
-        return nodes;
-    }
-     
-     */
     candMoveList moves ;
    
     
@@ -69,6 +49,7 @@ bitboard perft (int depth, position& pos)
                 //printmove(moves.start -> mv);
                 //pos.printBoard();
             }
+          
             pos.do_move(moves.start -> mv, state);
             if(pos.get_pieces(pos.get_sideToPlay()) & pos.squareAttackedBy(pos.get_king_sq(player(!pos.get_sideToPlay()))))
             {
@@ -84,6 +65,7 @@ bitboard perft (int depth, position& pos)
             }
             nodes += perft(depth -1, pos);
             pos.undo_move(moves.start -> mv);
+           
            // pos.printBoard();
             if( popcount(pos.get_pieces(p_king)) < 2)
             {

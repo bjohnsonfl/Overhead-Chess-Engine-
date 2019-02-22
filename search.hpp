@@ -11,13 +11,17 @@
 
 #include <stdio.h>
 
+#include "evaluate.hpp"
 #include "position.hpp"
 #include "moveGen.hpp"
 #include "types.hpp"
 
 bitboard perft (int depth,  position& pos);
-
 bitboard perftDivide (int depth , position &pos);
+
+move rootSearch (position& pos);
+value alphaBeta (int alpha, int beta, position& pos, int depth);
+
 
 
 #endif /* search_hpp */

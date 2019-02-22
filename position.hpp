@@ -51,7 +51,7 @@ private:
     
     int ply;
     player sideToPlay;
-    int nodes;
+    bitboard nodes;
     returnState* state;
     
 public:
@@ -99,7 +99,9 @@ public:
     //moves
     bool legal(move m) const;
     
-    int get_nodes() const;
+    bitboard get_nodes() const;
+    void inc_nodes();
+    int get_ply() const;
     int numberOfPieces () const;
     void printAllBitboards() const;
     void printBoard() const;
@@ -178,8 +180,16 @@ inline bitboard position::attacksFromPawn(square sq, player color) const{
     return openBoardPawnAttacks[color][sq];
 }
 
-inline int position::get_nodes() const {
+inline bitboard position::get_nodes() const {
     return nodes;
+}
+
+inline void position::inc_nodes() {
+    nodes++;
+}
+
+inline int position::get_ply() const{
+    return ply;
 }
 
 inline int position::numberOfPieces()const{

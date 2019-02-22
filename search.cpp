@@ -155,9 +155,100 @@ bitboard perftDivide (int depth, position& pos)
         movs.start ++;
         
     }
-    
-    
-    
-    
     return totalNodes;
 }
+
+
+
+move rootSearch (position& pos)
+{
+    
+    
+    
+    
+    
+    return none;
+}
+
+value alphaBeta(int alpha, int beta, position& pos, int depth)
+{
+    
+    if( depth == 0) return evaluate (pos);
+    
+    pos.inc_nodes();
+    
+    bool check = false;
+    player us = pos.get_sideToPlay();
+    player them = player(!us);
+    candMoveList movs;
+    returnState state = returnState();
+    int legalMoves = 0;
+    
+    value score = draw;
+    value bestScore = value(-mate);
+    move bestMove = none;
+    
+    //Determine if position is in check and if evasions are required. extend depth by 1
+    if( pos.get_pieces(them) & pos.squareAttackedBy(pos.get_king_sq(us)))
+    {
+        check = true;
+        depth++;
+    }
+    
+    movs.end = check == true ? generateEvasion(pos, movs.end)
+                             : generateNonEvasions(pos, movs.end);
+    candidate * begin = movs.start;
+  
+    while(begin != movs.end)
+    {
+        //could use a move picker function here and check for legality in it
+        //Only use legal moves
+        if(pos.legal(begin -> mv))
+        {
+            legalMoves++;
+            pos.do_move(begin -> mv, state);
+            score = value(-alphaBeta(-alpha, -beta, pos, depth--));
+            pos.undo_move(begin -> mv);
+            
+            if(score > bestScore)
+            {
+               //Current best score at this root, but maybe less than alpha
+                bestScore = score;
+               
+                if(score > alpha)
+                {
+                    bestMove = begin -> mv;
+                    
+                    if(score >= beta)
+                    {
+                        return value(beta);
+                    }
+                    
+                    alpha = score;
+                    
+                }
+            }
+            
+            
+        } //legal moves
+    }//while all moves
+    
+    
+    //mate and statelate
+    if((legalMoves == 0) && check)
+    {
+        return check == true ? value(-mate + pos.get_ply()) : draw;
+    }
+    
+    
+    return value(alpha);
+}
+
+
+
+
+
+
+
+
+

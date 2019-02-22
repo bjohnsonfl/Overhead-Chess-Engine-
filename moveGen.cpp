@@ -41,6 +41,18 @@ candidate* generateLegal (const position& pos, candidate* moveList, moveType T)
     return moveList;
 }
 
+candidate* generateNonEvasions(const position& pos, candidate* moveList)
+{
+    moveList = generateCapture(pos, moveList);
+    moveList = generatePromotions(pos, moveList);
+    moveList = generateQuiet(pos, moveList);
+    if(pos.get_castlingRights(pos.get_sideToPlay()))moveList = generateCastling(pos, moveList);
+    if(pos.get_enPassent() != empty) moveList = generateEnPassent(pos, moveList);
+
+return moveList;
+}
+
+
 candidate* generateAllLegal (const position& pos, candidate* moveList)
 {
    
@@ -53,9 +65,10 @@ candidate* generateAllLegal (const position& pos, candidate* moveList)
     }
     else{
        //  std::cout <<"inside else\n";
-    moveList = generateQuiet(pos, moveList);
+    
     moveList = generateCapture(pos, moveList);
     moveList = generatePromotions(pos, moveList);
+    moveList = generateQuiet(pos, moveList);
     if(pos.get_castlingRights(pos.get_sideToPlay()))moveList = generateCastling(pos, moveList);
     if(pos.get_enPassent() != empty) moveList = generateEnPassent(pos, moveList);
     }

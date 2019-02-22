@@ -114,6 +114,17 @@ enum piece {
     b_pawn, b_knight, b_bishop, b_rook, b_queen, b_king,
     not_piece, numOfPieces = 12
 };
+
+enum value {
+    draw = 0,
+    pawnVal = 100,
+    knightVal = 300,
+    bishopVal = 330,
+    rookVal = 500,
+    queenVal = 900,
+    mate = 50000    
+};
+
 inline piece operator++(piece& d, int) { return d = piece(int(d) + 1); }
 
 

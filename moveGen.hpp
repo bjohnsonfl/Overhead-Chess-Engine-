@@ -40,6 +40,9 @@ template <moveType>
 candidate* generate (const position& pos, candidate* moveList);
 
 candidate* generateLegal (const position& pos, candidate* moveList, moveType T);
+
+candidate* generateNonEvasions(const position& pos, candidate* moveList);
+
 candidate* generateAllLegal (const position& pos, candidate* moveList);
 
 candidate* generateQuiet (const position& pos, candidate* moveList);

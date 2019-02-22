@@ -18,13 +18,14 @@
 #include "UCI.hpp"
 
 int main(int argc, const char * argv[]) {
-    
-    
+ 
+
     bitboards::init();
     
     
     UCI newUCI;
     
+    newUCI.loop();
 
     
  /*

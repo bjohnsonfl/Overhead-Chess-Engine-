@@ -20,8 +20,40 @@ position::position()
     count =0;
 }
 
+void position::updatePositionFen(std::string fen)
+{
+    returnState newState = returnState();
+    newState.prev = state;
+    state = &newState;
+    
+    
+    //Code ripped from the setboard function below.
+    for(square sq =a1; sq < numOfSq; sq++)
+    {
+        board[sq] = not_piece;
+    }
+    
+    for(piece p = w_pawn; p<numOfPieces ; p++ )
+    {
+        pieces[p] = 0ULL;
+    }
+    allWhitePieces = 0ULL;
+    allBlackPieces = 0ULL;
+    allPieces = allWhitePieces | allBlackPieces;
+    
+    
+    fenParser(fen);
+    update_check_boards(state);
+}
+
 void position::reset(){
    
+    //reset return state, its ok to do it twice at start up, this is for reset by gui
+    state ->captured = not_piece;
+    state -> m = none;
+    state -> prev = NULL;
+    
+    
     //these could be overwritten by the fen called in setboard
     ply = 0;
     sideToPlay = white;
@@ -50,7 +82,7 @@ void position::setboard(){
    
     
    
-  //  std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 //std::string fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";
    
     
@@ -61,7 +93,7 @@ void position::setboard(){
     
     
     
-    std::string fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
+ //   std::string fen = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
     
     
     

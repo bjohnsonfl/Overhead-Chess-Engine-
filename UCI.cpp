@@ -11,46 +11,176 @@
 
 UCI::UCI()
 {
-    pos.printBoard();
+     wTime = 0;
+     bTime = 0;
+     wInc = 0;
+     bInc = 0;
+    
+     depth = 0;
+     moveTime = 0;
     
 }
 
 void UCI::loop(){
     
-    /*
+    
      std::string line ="";
      std::string token = "";
      
      
      while (std::getline(std::cin, line))
      {
-     std::istringstream stream (line);
+         std::istringstream stream (line);
      
-     stream >> token;
+         stream >> token;
      
-     if(token == "test")
-     {
-     std::cout << "in test\n";
+         if(token == "uci")
+            {
+                std::cout << "id name: Overhead\n";
+                std::cout << "id author: Blake Johnson\n";
+                std::cout << "uciok\n";
+            }
+         else if( token == "isready") std::cout << "readyok\n";
+         else if( token == "setoption"); //do options later
+         else if( token == "register");  //later
+         else if( token == "ucinewgame"); //do prep for new game
+         else if( token == "position") parsePosition(stream);
+         else if (token == "go") parseGo(stream);
+         
+         //Try and figure out a solution to poll the stream buffer. getline blocks which is not a solution
+         //uci says white space before message is possible so peeking is not a solution
+         else if (token == "stop");
+         else if(token == "quit") break;
+     
+         else std::cout <<"not a command\n";
+     
+     
      }
-     else if( token == "here")
-     {
-     
-     
-     
-     }
-     else if (token == "go")
-     {
-     while ( stream >> token)
-     {
-     
-     }
-     }
-     else if(token == "quit") break;
-     
-     else std::cout <<"not a command\n";
-     
-     
-     }
-     */
     
+    
+}
+
+void UCI::parsePosition(std::istringstream &stream)
+{
+
+    move m = none;
+    std::string token, fen;
+    
+    stream >> token;
+    
+    if( token == "startpos")
+    {
+    
+        pos.reset();
+    }
+    else if ( token == "fen")
+    {
+       //credit to stockfish
+        while (stream >> token && token != "moves")
+            fen += token + " ";
+        std::cout<<fen;
+    }
+  
+    else return;
+    
+
+    while (stream >> token && ((m = moveCheck(token)) != none))
+    {
+        returnState newState = returnState();
+        pos.do_move(m, newState);
+    }
+    pos.printBoard();
+}
+
+void UCI::parseGo(std::istringstream &stream)
+{
+    std::string token = "";
+    while(stream >> token){
+    
+        if(token == "wtime") {
+            stream >> token;
+            wTime = std::stoi(token);
+        }
+        else if (token == "btime"){
+            stream >> token;
+            bTime = std::stoi(token);
+        }
+        else if (token == "winc"){
+            stream >> token;
+            wInc = std::stoi(token);
+        }
+        else if (token == "binc"){
+            stream >> token;
+            bInc = std::stoi(token);
+        }
+        else if (token == "depth"){
+            stream >> token;
+            depth = std::stoi(token);
+        }
+        else if (token == "movetime"){
+            stream >> token;
+            moveTime = std::stoi(token);
+        }
+    }
+    
+    //search
+    
+}
+
+move UCI::moveCheck(std::string str)
+{
+    candMoveList movs;
+    movs.end = generateAllLegal(pos, movs.end);
+    
+    while(movs.start != movs.end)
+    {
+        if(str == moveToString(movs.start -> mv))
+        {
+            return movs.start -> mv;
+        }
+        movs.start++;
+    }
+    
+    return none;
+}
+
+std::string UCI::moveToString (move m)
+{
+    
+    //the only internal moves different to external are castling and promotions
+    //internally: castling is king to rook sq
+    //externally: castling is king src to king dest
+    //for promotions, just add the promo letter i.e. fromToPromo
+    std::string mv = "     ";
+    std::string pieceletters = " nbrq";
+    square from ,to;
+    from = source_sq(m);
+    to = destination_sq(m);
+    mv[0] = square_to_file(from) + 'a';
+    mv[1] = square_to_rank(from) + '1';
+    mv[2] = square_to_file(to) + 'a';
+    mv[3] = square_to_rank(to) + '1';
+    
+    if(move_flag(m) == promoting)
+        mv[4] = pieceletters[promo_pieceType(m)];
+    
+    if(move_flag(m) == castling){
+        if(to == a1){
+            mv[2] = 'c';
+            mv[3] = '1';
+        }
+        else if(to == h1){
+            mv[2] = 'g';
+            mv[3] = '1';
+        }
+        else if(to == a8){
+            mv[2] = 'c';
+            mv[3] = '8';
+        }
+        else if(to == h8){
+            mv[2] = 'g';
+            mv[3] = '8';
+        }
+    }
+    return mv;
 }

@@ -163,7 +163,7 @@ bitboard perftDivide (int depth, position& pos)
 move rootSearch (position& pos)
 {
     
-    
+    alphaBeta(-100000, 100000, pos, 5);
     
     
     

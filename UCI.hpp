@@ -10,9 +10,11 @@
 #define UCI_hpp
 
 #include <stdio.h>
+#include <string>
 
+#include "moveGen.hpp"
 #include "position.hpp"
-
+#include "types.hpp"
 class UCI
 {
     
@@ -25,15 +27,18 @@ private:
     
     //search controls
     int depth;
-    int movetime;
+    int moveTime;
     
     position pos;
     
 public:
     UCI ();
     void loop ();
-    void parseGo ();
-    void position ();
+    void parseGo (std::istringstream& stream);
+    void parsePosition (std::istringstream& stream);
+    move moveCheck(std::string str); //compare move to legal moves
+    std::string moveToString (move m);
+    
 };
 
 

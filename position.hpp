@@ -56,6 +56,7 @@ private:
     
 public:
     position();
+    void updatePositionFen (std::string fen);
     void reset();
     void setboard();
     void fenParser(std::string& fen);

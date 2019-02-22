@@ -12,5 +12,5 @@
 
 value evaluate (position& pos)
     {
-        return draw;
+        return value ((rand() % 10) - 5);
     }

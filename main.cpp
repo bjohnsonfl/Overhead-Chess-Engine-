@@ -17,9 +17,12 @@
 #include "types.hpp"
 #include "UCI.hpp"
 
+ extern move pvTable[256];
+
 int main(int argc, const char * argv[]) {
  
-
+    
+   
     bitboards::init();
     
     

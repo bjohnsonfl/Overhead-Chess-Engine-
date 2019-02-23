@@ -8,6 +8,8 @@
 
 #include "search.hpp"
 
+move pvTable[256];
+
 bitboard perft (int depth, position& pos)
 {
     
@@ -163,8 +165,8 @@ bitboard perftDivide (int depth, position& pos)
 move rootSearch (position& pos)
 {
     
-    alphaBeta(-100000, 100000, pos, 5);
-    
+    alphaBeta(value(-mate), mate, pos, 4);
+    pos.bestMove = pvTable[4];
     
     
     return none;
@@ -173,8 +175,11 @@ move rootSearch (position& pos)
 value alphaBeta(int alpha, int beta, position& pos, int depth)
 {
     
-    if( depth == 0) return evaluate (pos);
-    
+    if( depth == 0) {
+        value var = evaluate(pos);
+
+        return var;
+    }
     pos.inc_nodes();
     
     bool check = false;
@@ -192,7 +197,7 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
     if( pos.get_pieces(them) & pos.squareAttackedBy(pos.get_king_sq(us)))
     {
         check = true;
-        depth++;
+        //depth++;
     }
     
     movs.end = check == true ? generateEvasion(pos, movs.end)
@@ -207,19 +212,28 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
         {
             legalMoves++;
             pos.do_move(begin -> mv, state);
-            score = value(-alphaBeta(-alpha, -beta, pos, depth--));
+            score = value(-alphaBeta(-beta, -alpha, pos, depth - 1));
+           // if(depth == 4)
+            //{
+               // std::cout << "depth: " << depth << " score: " <<score << " best score: " << bestScore <<"\n";
+              //  printmove(begin -> mv);
+                
+            //}
             pos.undo_move(begin -> mv);
+            
+            //std::cout<< "score: " <<score << " best score: " << bestScore << " depth: " << depth << " alpha: "<< alpha <<"\n";
             
             if(score > bestScore)
             {
                //Current best score at this root, but maybe less than alpha
                 bestScore = score;
-               
-                if(score > alpha)
+                bestMove = begin -> mv;
+                if(score > value(alpha))
                 {
-                    bestMove = begin -> mv;
-                    
-                    if(score >= beta)
+                    pvTable[depth] = bestMove;
+                    pos.bestMove = bestMove;
+                   
+                    if(score >= value(beta))
                     {
                         return value(beta);
                     }
@@ -231,6 +245,8 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
             
             
         } //legal moves
+        
+        begin++;
     }//while all moves
     
     
@@ -240,7 +256,7 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
         return check == true ? value(-mate + pos.get_ply()) : draw;
     }
     
-    
+   
     return value(alpha);
 }
 

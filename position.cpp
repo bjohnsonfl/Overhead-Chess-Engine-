@@ -41,6 +41,7 @@ void position::updatePositionFen(std::string fen)
     allBlackPieces = 0ULL;
     allPieces = allWhitePieces | allBlackPieces;
     
+    nodes = 0;
     
     fenParser(fen);
     update_check_boards(state);
@@ -122,8 +123,8 @@ void position::setboard(){
     
     
     //debug
-    printAllBitboards();
-    printBoard();
+    //printAllBitboards();
+   // printBoard();
     
 }
 

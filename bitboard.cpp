@@ -58,7 +58,7 @@ int popcount(bitboard b) {
 
 void bitboards::init(){
 
-   std::cout << "Generating Bitboard Masks... \n";
+  // std::cout << "Generating Bitboard Masks... \n";
     for(int i=0; i<numOfSq; i++)
     {
           squareBitMask[i] = (1ULL << i);
@@ -88,19 +88,19 @@ void bitboards::init(){
         rankBitMask[i] = rank1 << (8*i);
         clearRank[i] = ~rankBitMask[i];
     }
-     std::cout << "Generating Piece Attacks... \n";
+    // std::cout << "Generating Piece Attacks... \n";
      allPawnAttacks();
      allKingAttacks();
      allKnightAttacks();
      allBishopAttacks();
      allRookAttacks();
      allQueenAttacks();
-     std::cout << "Generating Magic Bishop Boards... \n";
+     //std::cout << "Generating Magic Bishop Boards... \n";
      initMagicBishop();
-     std::cout << "Generating Magic Rook Boards... \n";
+     //std::cout << "Generating Magic Rook Boards... \n";
      initMagicRook();
      inBetweenBitMask();
-     std::cout << "Generating Bitboards Complete... \n";
+     //std::cout << "Generating Bitboards Complete... \n";
 }
 
 bitboard diagMasks (int sq, bitboard occupied){

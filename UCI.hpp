@@ -9,11 +9,13 @@
 #ifndef UCI_hpp
 #define UCI_hpp
 
+#include <ctime>
 #include <stdio.h>
 #include <string>
 
 #include "moveGen.hpp"
 #include "position.hpp"
+#include "search.hpp"
 #include "types.hpp"
 class UCI
 {

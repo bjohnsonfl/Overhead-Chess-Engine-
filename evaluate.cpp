@@ -12,5 +12,9 @@
 
 value evaluate (position& pos)
     {
-        return value ((rand() % 10) - 5);
+        value var =value ((rand() % 10) );
+        
+        if (pos.get_sideToPlay() == white)
+            return var;
+        else return value(-var);
     }

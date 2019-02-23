@@ -31,8 +31,9 @@ void UCI::loop(){
      while (std::getline(std::cin, line))
      {
          std::istringstream stream (line);
-     
-         stream >> token;
+         token.clear();
+         stream >> std::skipws >> token;
+       
      
          if(token == "uci")
             {
@@ -72,6 +73,7 @@ void UCI::parsePosition(std::istringstream &stream)
     {
     
         pos.reset();
+        stream >> token;
     }
     else if ( token == "fen")
     {
@@ -79,6 +81,8 @@ void UCI::parsePosition(std::istringstream &stream)
         while (stream >> token && token != "moves")
             fen += token + " ";
         std::cout<<fen;
+        pos.updatePositionFen(fen);
+        pos.printBoard();
     }
   
     else return;
@@ -88,6 +92,7 @@ void UCI::parsePosition(std::istringstream &stream)
     {
         returnState newState = returnState();
         pos.do_move(m, newState);
+        pos.printBoard();
     }
     pos.printBoard();
 }
@@ -121,10 +126,31 @@ void UCI::parseGo(std::istringstream &stream)
             stream >> token;
             moveTime = std::stoi(token);
         }
+        else if (token == "perft"){
+            stream >> token;
+            bitboard nodes = 0;
+            clock_t t;
+            std::cout <<"Starting Perft... \n\n";
+            t = clock();
+            nodes= perftDivide(5, pos);
+            t = clock() - t;
+            
+            std::cout << "nodes = " << nodes << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
+            std::cout << "totalNodes = " << pos.get_nodes() << "\n";
+            
+            
+        }
     }
     
     //search
-    
+    pos.reset_nodes();
+    clock_t t;
+    t= clock();
+    rootSearch(pos);
+    t = clock() - t;
+    std::cout << "bestmove " << moveToString(pos.bestMove) << "\n";
+   // std::cout << "nodes = " << pos.get_nodes() << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
+   ;
 }
 
 move UCI::moveCheck(std::string str)
@@ -134,6 +160,8 @@ move UCI::moveCheck(std::string str)
     
     while(movs.start != movs.end)
     {
+        std::cout<< moveToString(movs.start -> mv) << "\n";
+        std::cout<<str << "\n";
         if(str == moveToString(movs.start -> mv))
         {
             return movs.start -> mv;
@@ -151,7 +179,7 @@ std::string UCI::moveToString (move m)
     //internally: castling is king to rook sq
     //externally: castling is king src to king dest
     //for promotions, just add the promo letter i.e. fromToPromo
-    std::string mv = "     ";
+    std::string mv = "    ";
     std::string pieceletters = " nbrq";
     square from ,to;
     from = source_sq(m);
@@ -162,7 +190,7 @@ std::string UCI::moveToString (move m)
     mv[3] = square_to_rank(to) + '1';
     
     if(move_flag(m) == promoting)
-        mv[4] = pieceletters[promo_pieceType(m)];
+        mv += pieceletters[promo_pieceType(m)];
     
     if(move_flag(m) == castling){
         if(to == a1){

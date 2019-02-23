@@ -54,6 +54,8 @@ private:
     bitboard nodes;
     returnState* state;
     
+   
+    
 public:
     position();
     void updatePositionFen (std::string fen);
@@ -61,6 +63,8 @@ public:
     void setboard();
     void fenParser(std::string& fen);
     
+    //just for debugging
+    move bestMove;
     
     //bitboards and squares
     bitboard get_pieces () const ;
@@ -102,6 +106,7 @@ public:
     
     bitboard get_nodes() const;
     void inc_nodes();
+    void reset_nodes();
     int get_ply() const;
     int numberOfPieces () const;
     void printAllBitboards() const;
@@ -187,6 +192,10 @@ inline bitboard position::get_nodes() const {
 
 inline void position::inc_nodes() {
     nodes++;
+}
+
+inline void position::reset_nodes(){
+    nodes = 0;
 }
 
 inline int position::get_ply() const{

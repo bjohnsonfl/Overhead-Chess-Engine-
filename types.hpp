@@ -115,6 +115,12 @@ enum piece {
     not_piece, numOfPieces = 12
 };
 
+
+constexpr pieceType piece_To_Piecetype(piece pt)
+{
+    return pieceType(pt % numOfPieceType);
+}
+
 enum value {
     draw = 0,
     pawnVal = 100,
@@ -124,6 +130,14 @@ enum value {
     queenVal = 900,
     mate = 50000    
 };
+
+constexpr value operator+(value d1, value d2) { return value(int(d1) + int(d2)); }
+constexpr value operator-(value d1, value d2) { return value(int(d1) - int(d2)); }
+constexpr value operator-(value d) { return value(-int(d)); }
+constexpr value operator*(int i, value d) { return value(i * int(d)); }
+constexpr value operator*(value d, int i) { return value(int(d) * i); }
+
+extern value pieceValue[numOfPieceType];
 
 inline piece operator++(piece& d, int) { return d = piece(int(d) + 1); }
 

@@ -165,8 +165,8 @@ bitboard perftDivide (int depth, position& pos)
 move rootSearch (position& pos)
 {
     
-    alphaBeta(value(-mate), mate, pos, 4);
-    pos.bestMove = pvTable[4];
+    alphaBeta(value(-mate), mate, pos, 8);
+    pos.bestMove = pvTable[8];
     
     
     return none;
@@ -213,12 +213,12 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
             legalMoves++;
             pos.do_move(begin -> mv, state);
             score = value(-alphaBeta(-beta, -alpha, pos, depth - 1));
-           // if(depth == 4)
-            //{
-               // std::cout << "depth: " << depth << " score: " <<score << " best score: " << bestScore <<"\n";
-              //  printmove(begin -> mv);
+          /*  if(depth == 8)
+            {
+                std::cout << "depth: " << depth << " score: " <<score << " best score: " << bestScore <<"\n";
+               // printmove(begin -> mv);
                 
-            //}
+            }*/
             pos.undo_move(begin -> mv);
             
             //std::cout<< "score: " <<score << " best score: " << bestScore << " depth: " << depth << " alpha: "<< alpha <<"\n";
@@ -230,6 +230,12 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
                 bestMove = begin -> mv;
                 if(score > value(alpha))
                 {
+                  
+                    /*if(depth == 8)
+                   {
+                      std::cout<< "score: " <<score << " best score: " << bestScore << " depth: " << depth << " alpha: "<< alpha <<"\n";
+                       printmove(begin -> mv);
+                   }*/
                     pvTable[depth] = bestMove;
                     pos.bestMove = bestMove;
                    

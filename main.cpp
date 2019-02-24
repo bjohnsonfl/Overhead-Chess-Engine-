@@ -21,10 +21,12 @@
 
 int main(int argc, const char * argv[]) {
  
-    
+    square sw = square(e8 ^ (black * 56));
+    sw = square(f8 ^ (black * 56));
    
-    bitboards::init();
     
+    bitboards::init();
+    evaluation::init();
     
     UCI newUCI;
     

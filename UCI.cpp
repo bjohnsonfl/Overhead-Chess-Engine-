@@ -26,7 +26,7 @@ void UCI::loop(){
     
      std::string line ="";
      std::string token = "";
-     
+    returnState newState = returnState();
      
      while (std::getline(std::cin, line))
      {
@@ -45,7 +45,7 @@ void UCI::loop(){
          else if( token == "setoption"); //do options later
          else if( token == "register");  //later
          else if( token == "ucinewgame"); //do prep for new game
-         else if( token == "position") parsePosition(stream);
+         else if( token == "position") parsePosition(stream, newState);
          else if (token == "go") parseGo(stream);
          
          //Try and figure out a solution to poll the stream buffer. getline blocks which is not a solution
@@ -61,7 +61,7 @@ void UCI::loop(){
     
 }
 
-void UCI::parsePosition(std::istringstream &stream)
+void UCI::parsePosition(std::istringstream &stream, returnState& newState)
 {
 
     move m = none;
@@ -90,8 +90,10 @@ void UCI::parsePosition(std::istringstream &stream)
 
     while (stream >> token && ((m = moveCheck(token)) != none))
     {
-        returnState newState = returnState();
-        pos.do_move(m, newState);
+       // returnState newState = returnState();
+       // newState = returnState();
+        returnState * nnewState = new returnState();
+        pos.do_move(m, *nnewState);
         pos.printBoard();
     }
     pos.printBoard();
@@ -149,7 +151,7 @@ void UCI::parseGo(std::istringstream &stream)
     rootSearch(pos);
     t = clock() - t;
     std::cout << "bestmove " << moveToString(pos.bestMove) << "\n";
-   // std::cout << "nodes = " << pos.get_nodes() << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
+   std::cout << "nodes = " << pos.get_nodes() << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
    ;
 }
 

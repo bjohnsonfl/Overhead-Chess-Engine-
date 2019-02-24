@@ -15,6 +15,7 @@
 #include <string>
 
 #include "bitboard.hpp"
+#include "evaluate.hpp"
 #include "types.hpp"
 struct returnState {
   
@@ -26,6 +27,7 @@ struct returnState {
     returnState* prev;
     bitboard absolutePinned [numOfPlayers];
     bitboard pinners [numOfPlayers];
+    value material[numOfPlayers];
     returnState () {
         castling = noRights;  //Always take from the fen
         enPassent = empty;
@@ -37,6 +39,8 @@ struct returnState {
         absolutePinned[black] = 0;
         pinners[white] = 0;
         pinners[black] = 0;
+        material[white] = draw;
+        material [black] = draw;
     };
     
 };
@@ -87,7 +91,9 @@ public:
     
     //state related functions
     player get_sideToPlay() const;
+    value get_material (player color) const;
     void update_check_boards(returnState* state);
+    void update_material(returnState* state);
     
     //castling
     int get_castlingRights () const;
@@ -162,6 +168,10 @@ inline square position::get_enPassent() const {
 
 inline player position::get_sideToPlay() const{
     return sideToPlay;
+}
+
+inline value position::get_material(player color) const{
+    return state->material[color];
 }
 
 inline int position::get_castlingRights() const{

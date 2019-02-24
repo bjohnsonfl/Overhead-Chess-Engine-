@@ -22,9 +22,9 @@ position::position()
 
 void position::updatePositionFen(std::string fen)
 {
-    returnState newState = returnState();
-    newState.prev = state;
-    state = &newState;
+    returnState *newState = new returnState();
+    newState ->prev = state;
+    state = newState;
     
     
     //Code ripped from the setboard function below.
@@ -44,6 +44,7 @@ void position::updatePositionFen(std::string fen)
     nodes = 0;
     
     fenParser(fen);
+    update_material(state);
     update_check_boards(state);
 }
 
@@ -62,6 +63,7 @@ void position::reset(){
     
     //all pieces and square realted things should be handdled in setboard()
     setboard();
+    update_material(state);
     update_check_boards(state);
 }
 
@@ -285,12 +287,21 @@ void position::do_move(move m, returnState& newState)
     //promoting
     //enpassent
     //update pieces
+    
+    if(m == move(86230))
+    {
+        printBoard();
+        
+    }
 
     newState.fiftyMove = state -> fiftyMove;
     newState.enPassent = state -> enPassent;
     newState.castling = state -> castling;
     newState.captured = state -> captured;
     newState.m = state -> m;
+    newState.material[0] = state -> material[0];
+    newState.material[1] = state -> material[1];
+    
     //absolute pinned and pinners will be calculated later
     newState.prev = state;
     state = &newState;
@@ -406,7 +417,7 @@ void position::do_move(move m, returnState& newState)
             printBitboard(pieceColor2);
             std::cout << "fail\n";
         }
-       
+        state->material[them] =  value(state->material[them] - pieceValue[piece_To_Piecetype(captured) + 1]);
     }
     
     if(flag == enPass)
@@ -418,6 +429,7 @@ void position::do_move(move m, returnState& newState)
         remove_piece(capturedPawn, board[capturedPawn]);
         place_piece(enPsq, movingPiece);
         state->fiftyMove = 0;
+        state->material[them] =  value(state->material[them] - pieceValue[p_pawn + 1]);
     }
     
     if(( flag == regular  || flag == promoting )&& !capture)
@@ -438,6 +450,10 @@ void position::do_move(move m, returnState& newState)
             piece promo = piece(promo_pieceType(m));
             if(us == black) promo = piece(promo + 6);
             place_piece(to, promo);
+            
+            //remove pawn material and add promoting material
+            state->material[us] =  value(state->material[them] - pieceValue[piece_To_Piecetype(movingPiece) + 1]);
+            state->material[us] =  value(state->material[them] + pieceValue[piece_To_Piecetype(promo) + 1]);
         }
         if((us == white) && ((to - from) == 16)){
             bitboard attacks = attacksFromPawn(square(to + south ), us) & get_pieces(them, p_pawn);
@@ -608,6 +624,25 @@ void position::update_check_boards(returnState *state)
    
     state -> absolutePinned[black] = pinningBoards(get_king_sq(black), state->pinners[white], black);
 
+    
+}
+
+void position::update_material(returnState *state)
+{
+    bitboard pieces = 0;
+   //white
+    //have to increment pt+1 due to indexing
+    for( piece pt = w_pawn ; pt < w_king; pt++)
+    {
+        pieces = get_pieces(pt);
+        state -> material[white]  = state -> material[white] +(popcount(pieces) * pieceValue[pt+1]);
+    }
+    //black
+    for( piece pt = b_pawn ; pt < b_king; pt++)
+    {
+        pieces = get_pieces(pt);
+        state -> material[black]  =  state -> material[black] + (popcount(pieces) * pieceValue[pt-5]);
+    }
     
 }
 

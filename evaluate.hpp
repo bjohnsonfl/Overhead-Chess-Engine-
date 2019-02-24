@@ -14,6 +14,15 @@
 #include "position.hpp"
 #include "types.hpp"
 
+class position;
+
+namespace evaluation {
+    void init();
+}
+
+
+extern square oppSq[numOfSq];
+extern int pSqTble[numOfPieceType][numOfSq];
 
 value evaluate (position& pos);
 

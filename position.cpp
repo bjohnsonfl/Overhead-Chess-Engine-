@@ -452,8 +452,8 @@ void position::do_move(move m, returnState& newState)
             place_piece(to, promo);
             
             //remove pawn material and add promoting material
-            state->material[us] =  value(state->material[them] - pieceValue[piece_To_Piecetype(movingPiece) + 1]);
-            state->material[us] =  value(state->material[them] + pieceValue[piece_To_Piecetype(promo) + 1]);
+            state->material[us] =  value(state->material[us] - pieceValue[piece_To_Piecetype(movingPiece) + 1]);
+            state->material[us] =  value(state->material[us] + pieceValue[piece_To_Piecetype(promo) + 1]);
         }
         if((us == white) && ((to - from) == 16)){
             bitboard attacks = attacksFromPawn(square(to + south ), us) & get_pieces(them, p_pawn);

@@ -357,9 +357,9 @@ candidate* generateEnPassent (const position& pos, candidate* moveList)
 
 candidate* makePromotionMoves (square from, square to, candidate* moveList)
 {
-    (*moveList++).mv = make_move(from, to, pieceType(p_knight - 1), promoting);
-    (*moveList++).mv = make_move(from, to, pieceType(p_bishop - 1), promoting);
-    (*moveList++).mv = make_move(from, to, pieceType(p_rook - 1), promoting);
+    //(*moveList++).mv = make_move(from, to, pieceType(p_knight - 1), promoting);
+    //(*moveList++).mv = make_move(from, to, pieceType(p_bishop - 1), promoting);
+    //(*moveList++).mv = make_move(from, to, pieceType(p_rook - 1), promoting);
     (*moveList++).mv = make_move(from, to, pieceType(p_queen - 1), promoting);
     
     return moveList;

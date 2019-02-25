@@ -165,8 +165,13 @@ bitboard perftDivide (int depth, position& pos)
 move rootSearch (position& pos)
 {
     
-    alphaBeta(value(-mate), mate, pos, 8);
-    pos.bestMove = pvTable[8];
+    
+  
+    alphaBeta(value(-mate), mate, pos, 7);
+   
+    
+    
+    pos.bestMove = pvTable[7];
     
     
     return none;
@@ -259,7 +264,7 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
     //mate and statelate
     if((legalMoves == 0) && check)
     {
-        return check == true ? value(-mate + pos.get_ply()) : draw;
+        return check == true ? value(-mate + 100*pos.get_ply()) : draw;
     }
     
    

@@ -10,6 +10,7 @@
 #define UCI_hpp
 
 #include <ctime>
+#include <fstream>
 #include <stdio.h>
 #include <string>
 
@@ -34,6 +35,8 @@ private:
     int moveTime;
     
     position pos;
+    
+    std::ofstream logFile;
     
 public:
     UCI ();

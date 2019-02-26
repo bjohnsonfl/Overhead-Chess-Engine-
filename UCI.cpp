@@ -63,11 +63,12 @@ void UCI::loop(){
 
 void UCI::parsePosition(std::istringstream &stream, returnState& newState)
 {
-
+    logFile.open("log.txt" , std::ofstream::app);
     move m = none;
     std::string token, fen;
     
     stream >> token;
+   
     
     if( token == "startpos")
     {
@@ -81,6 +82,7 @@ void UCI::parsePosition(std::istringstream &stream, returnState& newState)
         while (stream >> token && token != "moves")
             fen += token + " ";
         std::cout<<fen;
+         logFile << fen << "\n";
         pos.updatePositionFen(fen);
         pos.printBoard();
     }
@@ -92,11 +94,15 @@ void UCI::parsePosition(std::istringstream &stream, returnState& newState)
     {
        // returnState newState = returnState();
        // newState = returnState();
+        logFile << token << " ";
         returnState * nnewState = new returnState();
         pos.do_move(m, *nnewState);
         pos.printBoard();
     }
     pos.printBoard();
+    
+    logFile << "Ply: " << pos.get_ply() << "\n";
+    logFile.close();
 }
 
 void UCI::parseGo(std::istringstream &stream)
@@ -136,10 +142,11 @@ void UCI::parseGo(std::istringstream &stream)
             t = clock();
             nodes= perftDivide(5, pos);
             t = clock() - t;
-            
+            logFile.open("log.txt",std::ofstream::app);
             std::cout << "nodes = " << nodes << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
             std::cout << "totalNodes = " << pos.get_nodes() << "\n";
-            
+            logFile << "nodes = " << nodes << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
+            logFile.close();
             
         }
     }
@@ -157,6 +164,11 @@ void UCI::parseGo(std::istringstream &stream)
     if( (pos.get_material(white) + pos.get_material(black)) >= gamePhaseCutoff) k = 0;
     std::cout << "info score cp "<<valueee<<" nodes " << pos.get_nodes() << " nps " << nps << " string " << k << "\n";
    ;
+    
+    logFile.open("log.txt" , std::ofstream::app);
+    logFile << "info score cp "<<valueee<<" nodes " << pos.get_nodes() << " nps " << nps << " string " << k << "\n";
+    logFile << "/////////////////////// \n";
+    logFile.close();
 }
 
 move UCI::moveCheck(std::string str)

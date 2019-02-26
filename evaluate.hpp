@@ -20,9 +20,15 @@ namespace evaluation {
     void init();
 }
 
+enum gamePhase {
+    middleGame,
+    endGame
+};
 
 extern square oppSq[numOfSq];
 extern int pSqTble[numOfPieceType][numOfSq];
+extern int pSqTbleEndGame[numOfPieceType][numOfSq];
+extern int gamePhaseCutoff;
 
 value evaluate (position& pos);
 

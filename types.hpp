@@ -124,11 +124,12 @@ constexpr pieceType piece_To_Piecetype(piece pt)
 enum value {
     draw = 0,
     pawnVal = 100,
-    knightVal = 300,
+    knightVal = 310,
     bishopVal = 330,
-    rookVal = 500,
-    queenVal = 900,
-    mate = 50000    
+    rookVal = 650, //500
+    queenVal = 1310, //1000
+    mate = 50000,
+    infinite = 11000
 };
 
 constexpr value operator+(value d1, value d2) { return value(int(d1) + int(d2)); }

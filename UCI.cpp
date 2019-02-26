@@ -152,6 +152,10 @@ void UCI::parseGo(std::istringstream &stream)
     t = clock() - t;
     std::cout << "bestmove " << moveToString(pos.bestMove) << "\n";
    std::cout << "nodes = " << pos.get_nodes() << " seconds: " << float(t)/CLOCKS_PER_SEC << std::endl;
+    int nps = pos.get_nodes() / (float(t)/CLOCKS_PER_SEC);
+    int k = 1;
+    if( (pos.get_material(white) + pos.get_material(black)) >= gamePhaseCutoff) k = 0;
+    std::cout << "info score cp "<<valueee<<" nodes " << pos.get_nodes() << " nps " << nps << " string " << k << "\n";
    ;
 }
 

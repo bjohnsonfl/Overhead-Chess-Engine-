@@ -13,10 +13,12 @@
 #include <stdio.h>
 #include <string>
 
+#include "evaluate.hpp"
 #include "moveGen.hpp"
 #include "position.hpp"
 #include "search.hpp"
 #include "types.hpp"
+extern int valueee;
 class UCI
 {
     

@@ -115,6 +115,7 @@ public:
     void reset_nodes();
     int get_ply() const;
     int numberOfPieces () const;
+    returnState* get_returnState() const;
     void printAllBitboards() const;
     void printBoard() const;
     
@@ -214,5 +215,9 @@ inline int position::get_ply() const{
 
 inline int position::numberOfPieces()const{
     return popcount(allPieces);
+}
+
+inline returnState* position::get_returnState()const {
+    return state;
 }
 #endif /* position_hpp */

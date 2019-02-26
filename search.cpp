@@ -242,11 +242,11 @@ value alphaBeta(int alpha, int beta, position& pos, int depth)
                 if(score > value(alpha))
                 {
                   
-                   /* if(depth == 7)
+                    if(depth == 7)
                    {
                       std::cout<< "score: " <<score << " best score: " << bestScore << " depth: " << depth << " alpha: "<< alpha <<"\n";
                        printmove(begin -> mv);
-                   } */
+                   } 
                     pvTable[depth] = bestMove;
                     pos.bestMove = bestMove;
                    

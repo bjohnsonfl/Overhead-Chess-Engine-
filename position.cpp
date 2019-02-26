@@ -15,7 +15,7 @@
 int count;
 position::position()
 {
-    state = new returnState ();
+   // state = new returnState ();
     reset();
     count =0;
 }
@@ -50,6 +50,8 @@ void position::updatePositionFen(std::string fen)
 
 void position::reset(){
    
+    state = new returnState();
+    
     //reset return state, its ok to do it twice at start up, this is for reset by gui
     state ->captured = not_piece;
     state -> m = none;
@@ -83,7 +85,12 @@ void position::setboard(){
     allPieces = allWhitePieces | allBlackPieces;
     
    
-    
+    /*
+     position fen rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 moves d2d4 e7e6 c1f4 g8f6 g1f3 b8c6 a2a3 f8d6 f4d6 c7d6 e2e3 d8a5 d1d2 a5h5 f1d3 h7h6 h2h3 e8g8 c2c4 d6d5 b1c3 d5c4 d3c4 d7d5 c4e2 c6a5 d2c2 a5c6 f3d2 h5h4 d2f3 h4h5 e1c1 c8d7 f3e5 h5g5 e5d7 f6d7 e2f3 a8c8 c2a4 d7b6 a4b3 f7f5 h3h4 g5f6 c1b1 f5f4 c3b5 f4e3 f2e3 f6f5 b1a1 c6a5 b3d3 c8c1 a1a2 f5d3 d1d3 c1h1 h4h5 a5c6 f3g4 e6e5 d4e5 c6e5 g4e6 g8h8 d3c3 h1h5 c3c7 e5c6 c7b7 c6d8 b7e7 h5e5 b5d4 a7a6 g2g4 e5e3 d4f5 e3e6 e7g7 d8f7 f5d4 e6f6 d4f5 b6c4 f5d4 h8g7 d4f5 g7g6 f5e7 g6g5 e7c6 g5g4 c6e5 g4g3 e5d3 c4b2 a2b2 f6f1 b2c3 f1a1 c3d4 a1a3 d4d5 a3d3 d5e4 d3d1 e4e3 d1a1 e3d4 a1b1 d4c4 b1a1 c4c3 a1b1 c3c2 b1a1 c2b2 a1b1 b2b1 f8a8 b1b2 a8a7 b2b3 a7b7 b3c4 b7b1 c4c3 b1a1 c3b2 a1b1 b2b1 a6a5 b1b2 a5a4 b2a3 h6h5 a3a4 h5h4 a4b4 h4h3 b4c3 h3h2 c3d4 h2h1q d4e3 h1a1 e3e2 a1b1 e2d2 b1a1 d2c2
+     
+      position startpos moves d2d4 e7e6 c1f4 g8f6 g1f3 b8c6 a2a3 f8d6 f4d6 c7d6 e2e3 d8a5 d1d2 a5h5 f1d3 h7h6 h2h3 e8g8 c2c4 d6d5 b1c3 d5c4 d3c4 d7d5 c4e2 c6a5 d2c2 a5c6 f3d2 h5h4 d2f3 h4h5 e1c1 c8d7 f3e5 h5g5 e5d7 f6d7 e2f3 a8c8 c2a4 d7b6 a4b3 f7f5 h3h4 g5f6 c1b1 f5f4 c3b5 f4e3 f2e3 f6f5 b1a1 c6a5 b3d3 c8c1 a1a2 f5d3 d1d3 c1h1 h4h5 a5c6 f3g4 e6e5 d4e5 c6e5 g4e6 g8h8 d3c3 h1h5 c3c7 e5c6 c7b7 c6d8 b7e7 h5e5 b5d4 a7a6 g2g4 e5e3 d4f5 e3e6 e7g7 d8f7 f5d4 e6f6 d4f5 b6c4 f5d4 h8g7 d4f5 g7g6 f5e7 g6g5 e7c6 g5g4 c6e5 g4g3 e5d3 c4b2 a2b2 f6f1 b2c3 f1a1 c3d4 a1a3 d4d5 a3d3 d5e4 d3d1 e4e3 d1a1 e3d4 a1b1 d4c4 b1a1 c4c3 a1b1 c3c2 b1a1 c2b2 a1b1 b2b1 f8a8 b1b2 a8a7 b2b3 a7b7 b3c4 b7b1 c4c3 b1a1 c3b2 a1b1 b2b1 a6a5 b1b2 a5a4 b2a3 h6h5 a3a4 h5h4 a4b4 h4h3 b4c3 h3h2 c3d4 h2h1q d4e3 h1a1 e3e2 a1b1 e2d2 b1a1 d2c2
+     
+     */
    
     std::string fen= "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 //std::string fen = "n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1";

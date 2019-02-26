@@ -38,6 +38,9 @@ private:
     
     std::ofstream logFile;
     
+    //debug
+    int totalStates;
+    
 public:
     UCI ();
     void loop ();
@@ -46,6 +49,9 @@ public:
     move moveCheck(std::string str); //compare move to legal moves
     std::string moveToString (move m);
     
+    
+    //debug
+    int totalState(returnState* st);
 };
 
 

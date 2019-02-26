@@ -95,11 +95,12 @@ void UCI::parsePosition(std::istringstream &stream, returnState& newState)
        // returnState newState = returnState();
        // newState = returnState();
         logFile << token << " ";
+        //Ok this is a memory leak. fix this with an array of 256 structs 
         returnState * nnewState = new returnState();
         pos.do_move(m, *nnewState);
         pos.printBoard();
     }
-    pos.printBoard();
+        pos.printBoard();
     
     logFile << "Ply: " << pos.get_ply() << "\n";
     logFile.close();
@@ -165,9 +166,15 @@ void UCI::parseGo(std::istringstream &stream)
     std::cout << "info score cp "<<valueee<<" nodes " << pos.get_nodes() << " nps " << nps << " string " << k << "\n";
    ;
     
+    int totalstates = totalState(pos.get_returnState());
+    std::cout << " totalstates: " <<totalstates << "\n";
+    
+    
     logFile.open("log.txt" , std::ofstream::app);
-    logFile << "info score cp "<<valueee<<" nodes " << pos.get_nodes() << " nps " << nps << " string " << k << "\n";
+    logFile << "info score cp "<<valueee<<" nodes " << pos.get_nodes() << " nps " << nps << " string " << k << " totalstates: " <<totalstates <<"\n";
     logFile << "/////////////////////// \n";
+    
+    
     logFile.close();
 }
 
@@ -178,8 +185,8 @@ move UCI::moveCheck(std::string str)
     
     while(movs.start != movs.end)
     {
-        std::cout<< moveToString(movs.start -> mv) << "\n";
-        std::cout<<str << "\n";
+       // std::cout<< moveToString(movs.start -> mv) << "\n";
+       // std::cout<<str << "\n";
         if(str == moveToString(movs.start -> mv))
         {
             return movs.start -> mv;
@@ -229,4 +236,13 @@ std::string UCI::moveToString (move m)
         }
     }
     return mv;
+}
+
+
+
+int UCI::totalState(returnState *st){
+    
+    if( st == NULL) return 0;
+    
+    return totalState(st->prev) + 1;
 }

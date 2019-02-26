@@ -84,10 +84,11 @@ candidate* generateQuiet(const position& pos, candidate* moveList){
     bitboard quiets = ~(pos.get_pieces());
     bitboard clear7Rank = us == white ? clearRank[rank_8] : clearRank[rank_1];
     
-    moveList = kingMoves(pos, quiets, moveList);
-    moveList = knightMoves(pos.get_pieces(us, p_knight), quiets, moveList);
     moveList = sliderMoves(pos, quiets, moveList);
     moveList = pawnPushMoves(pos, pos.get_pieces(us, p_pawn), us, quiets & clear7Rank, moveList);
+    moveList = kingMoves(pos, quiets, moveList);
+    moveList = knightMoves(pos.get_pieces(us, p_knight), quiets, moveList);
+    
     
     return moveList;
 }

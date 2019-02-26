@@ -1,5 +1,5 @@
 # Overhead
-This is a UCI Engine I developed from the ground up. I studied Stockfish, Chessprogramming.org, and Vice videos for inspiration.
+This is a UCI Engine I developed from the ground up. https://lichess.org/@/OverHead_BOT Challenge me to a game!
 
 # Features
 Overhead utilizes Bitboards and bitwise manipulations to represent board states and move generation. Magic Bitboards and Magic numbers are generated at startup for speedy slider attack generation. Negamax and alpha beta prunning is used for search and piece square tables and simple material difference is used for evlaution. Perft and PerftDivide are implemented to test and debug the move generator. No opening or endgame tables are used.
@@ -11,4 +11,5 @@ Overhead will benefit greatly from iterative deepening. Principal Variation, Tra
 Currently, Overhead requires 64 bit and a GCC compiler due to a LSB function in bitboard.hpp. If you are a windows user, you can replace that function with _BitScanForward64 in the intrin.h library. That should be updated in the future. Simply type `make` to compile and `./Overhead` to run. `make clean` will remove the .o files. If the makefile is acting strange, make sure spaces and tabings are correct. 
 
 # Acknowledgements 
+I studied Stockfish, https://www.Chessprogramming.org, and Vice videos for inspiration.
 If you would like to use my code or parts of it, please reference me. Thank you and enjoy!
